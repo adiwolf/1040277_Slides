@@ -1,22 +1,567 @@
 <!doctype html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Slides — 1040277</title>
-<style>
-body {font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; display:flex; align-items:center; justify-content:center; height:100vh; background:#111; color:#fff;}
-.slide {max-width:900px; padding:3rem; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); box-shadow:0 10px 30px rgba(0,0,0,0.6);}
-h1{font-size:3rem; margin:0 0 .5rem;}
-p{margin:.5rem 0; color:#cfcfcf;}
-.footer{margin-top:1.5rem; font-size:.9rem; opacity:.7;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מצגת: מתמטיקה לארכיטקטורה - הרצאה 1</title>
+    
+    <!-- יישוא של KaTeX לעיבוד נוסחאות מתמטיות --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" xintegrity="sha384-wcIxkf4k558fYv3eWK7go8HWaISdCZtfqpcOkoVhtGzMgEFQR5T9sMvAAR+NRSYJ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" xintegrity="sha384-hIoBPJpTadx52G6POQj0e1fDHYveBxQI8/tYKeNffPimfTgoOOM2iC2dE/fIZr42" crossorigin="anonymous" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" xintegrity="sha384-43gviWU0YVjaDtb/Gf1ESgOGfD7RhPK7E9zODitL5pcA/mXwhiQOpB3YtySXzBCW" crossorigin="anonymous" defer></script>
+
+    <style>
+        /* הגדרות בסיסיות */
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #333;
+            color: #333;
+            overflow: hidden;
+            direction: rtl; /* קביעת כיוון מימין לשמאל */
+        }
+
+        /* קונטיינר למצגת */
+        #presentation-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* קונטיינר לשקופיות */
+        #slide-container {
+            width: 100%;
+            max-width: 1100px; /* רוחב מירבי */
+            aspect-ratio: 16 / 9; /* יחס גובה-רוחב של שקופית */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* עיצוב שקופית בודדת */
+        .slide {
+            width: 100%;
+            height: 100%;
+            padding: 40px 60px;
+            box-sizing: border-box;
+            display: none; /* כל השקופיות מוסתרות כברירת מחדל */
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .slide.active {
+            display: flex; /* השקופית הפעילה מוצגת */
+        }
+
+        /* עיצוב כותרות */
+        .slide h1 {
+            font-size: 3rem;
+            color: #005A9C;
+            margin-top: auto; /* ממקם את הכותרת הראשית במרכז */
+            margin-bottom: auto;
+            text-align: center;
+            width: 100%;
+        }
+
+        .slide h2 {
+            font-size: 2.2rem;
+            color: #004170;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #005A9C;
+            width: 100%;
+        }
+        
+        .slide h3 {
+            font-size: 1.6rem;
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* עיצוב רשימות וטקסט */
+        ul {
+            padding-right: 20px; /* הזחה לימין */
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* קונטיינר לאיורים */
+        .illustration-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .math-diagram {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        /* סגנון ל-SVG */
+        .math-diagram svg {
+            width: 100%;
+            height: auto;
+            max-width: 350px;
+            overflow: visible;
+        }
+        
+        .math-diagram text {
+            font-size: 14px;
+            font-family: sans-serif;
+            fill: #000;
+        }
+        
+        /* סגנונות ספציפיים לאלמנטים באיור */
+        .vector { stroke-width: 2.5; }
+        .vector-u { stroke: #007bff; }
+        .vector-v { stroke: #dc3545; }
+        .vector-sum { stroke: #28a745; }
+        .vector-proj { stroke: #ffc107; }
+        .dashed { stroke-dasharray: 4 4; stroke: #6c757d; stroke-width: 1.5; }
+        .axis { stroke: #333; stroke-width: 1.5; }
+        .grid-line { stroke: #eee; stroke-width: 1; }
+        
+        /* סגנון לכפתור ולוח פתרון */
+        .solution-toggle {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        .solution-toggle:hover {
+            background-color: #0056b3;
+        }
+        .solution-content {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            direction: ltr; /* יישור הנוסחאות לשמאל */
+        }
+        .solution-content li {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        /* כפתורי ניווט */
+        .nav-button {
+            position: absolute;
+            bottom: 20px;
+            background-color: #005A9C;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            line-height: 40px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
+            z-index: 10;
+        }
+        .nav-button:hover {
+            background-color: #004170;
+        }
+        .nav-button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        #prevBtn {
+            left: 20px; /* מיקום כפתור "הקודם" בצד שמאל */
+        }
+        
+        #nextBtn {
+            right: 20px; /* מיקום כפתור "הבא" בצד ימין */
+        }
+    </style>
 </head>
 <body>
-<div class="slide">
-<h1>1040277 — Slides</h1>
-<p>Welcome — this repository contains slide content. Edit this index.html to add your presentation.</p>
-<p class="footer">Created by adiwolf on 2025-11-02</p>
-</div>
+
+    <div id="presentation-container">
+        <div id="slide-container">
+
+            <!-- שקופית 1: שער --><div class="slide active">
+                <h1>מתמטיקה לתלמידי ארכיטקטורה</h1>
+                <h2>הרצאה 1: המישור הממשי - נקודות וישרים</h2>
+            </div>
+
+            <!-- שקופית 2: הגדרה גיאומטרית --><div class="slide">
+                <h2>1. וקטורים: הגדרה גיאומטרית</h2>
+                <ul>
+                    <li>וקטור הוא גודל בעל כיוון ומגמה (מתואר כחץ).</li>
+                    <li><strong>שוויון וקטורים:</strong> שני וקטורים שווים אם יש להם אותו גודל, כיוון ומגמה.</li>
+                    <li><strong>וקטור האפס:</strong> וקטור בעל גודל 0.</li>
+                    <li><strong>וקטור יחידה:</strong> וקטור בעל גודל 1.</li>
+                    <li><strong>פעולות גיאומטריות:</strong> סכום והפרש וקטורים (כלל המקבילית/המשולש), כפל בסקלר (מתיחה/כיווץ).</li>
+                </ul>
+                
+                <div class="illustration-container">
+                    <!-- איור 1: סכום וקטורים --><div class="math-diagram">
+                        <svg viewBox="-10 -90 150 110">
+                            <defs>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+                                </marker>
+                            </defs>
+                            <title>איור גיאומטרי של סכום וקטורים וכפל בסקלר</title>
+                            <!-- סכום וקטורים --><line x1="0" y1="0" x2="80" y2="0" class="vector vector-u" marker-end="url(#arrow)" />
+                            <text x="40" y="-5">$\vec{u}$</text>
+                            <line x1="0" y1="0" x2="30" y2="-50" class="vector vector-v" marker-end="url(#arrow)" />
+                            <text x="10" y="-25">$\vec{v}$</text>
+                            <line x1="0" y1="0" x2="110" y2="-50" class="vector vector-sum" marker-end="url(#arrow)" />
+                            <text x="55" y="-30" fill="#28a745">$\vec{u} + \vec{v}$</text>
+                            <line x1="80" y1="0" x2="110" y2="-50" class="dashed" />
+                            <line x1="30" y1="-50" x2="110" y2="-50" class="dashed" />
+                            
+                            <!-- כפל בסקלר --><line x1="0" y1="-70" x2="50" y2="-70" class="vector vector-v" marker-end="url(#arrow)" />
+                            <text x="25" y="-75">$\vec{w}$</text>
+                            <line x1="0" y1="-85" x2="100" y2="-85" class="vector" stroke="purple" marker-end="url(#arrow)" />
+                            <text x="50" y="-90" fill="purple">$2\vec{w}$</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקופית 3 חדשה: נקודות במערכת צירים --><div class="slide">
+                <h2>2. מערכת צירים ונקודות</h2>
+                <ul>
+                    <li>מערכת צירים קרטזית מורכבת משני צירים מאונכים: ציר $x$ (אופקי) וציר $y$ (אנכי).</li>
+                    <li>הצירים נפגשים בנקודת הראשית, $(0, 0)$.</li>
+                    <li>כל נקודה במישור מזוהה באופן ייחודי על ידי זוג סדור של מספרים $(x, y)$, הנקראים קואורדינטות.</li>
+                </ul>
+                <h3>דוגמה מספרית:</h3>
+                <p>הנקודה $P = (4, 3)$ היא הנקודה שנמצאת 4 יחידות ימינה (בכיוון $x$) ו-3 יחידות למעלה (בכיוון $y$) מנקודת הראשית.</p>
+                
+                <div class="illustration-container">
+                    <div class="math-diagram">
+                        <svg viewBox="-30 -80 140 100">
+                            <defs>
+                                <marker id="arrow-axis-point" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#333" />
+                                </marker>
+                            </defs>
+                            <title>נקודה במערכת צירים</title>
+                            <!-- ציר Y --><line x1="0" y1="10" x2="0" y2="-70" class="axis" marker-end="url(#arrow-axis-point)" />
+                            <text x="5" y="-60">ציר $y$</text>
+                            <!-- ציר X --><line x1="-10" y1="0" x2="110" y2="0" class="axis" marker-end="url(#arrow-axis-point)" />
+                            <text x="100" y="-5">ציר $x$</text>
+                            
+                            <!-- קווי עזר --><line x1="60" y1="0" x2="60" y2="-45" class="dashed" />
+                            <line x1="0" y1="-45" x2="60" y2="-45" class="dashed" />
+                            
+                            <!-- נקודה --><circle cx="60" cy="-45" r="3" fill="#dc3545" />
+                            <text x="65" y="-45" fill="#dc3545" font-weight="bold">$P = (4, 3)$</text>
+                            
+                            <!-- תוויות צירים --><text x="60" y="15" font-size="12px">4</text>
+                            <text x="-15" y="-45" font-size="12px">3</text>
+                            <circle cx="0" cy="0" r="2" fill="#333" />
+                            <text x="-15" y="10" font-size="12px">(0,0)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקופית 4: מערכת צירים קרטזית (וקטורים) --><div class="slide">
+                <h2>3. וקטורים במערכת צירים קרטזית</h2>
+                <ul>
+                    <li>הגדרה אלגברית של וקטור במישור: $\vec{v} = (x, y)$</li>
+                    <li><strong>גודל הוקטור (אורך):</strong> $|\vec{v}| = \sqrt{x^2 + y^2}$</li>
+                    <li><strong>סכום וקטורים:</strong> $\vec{u} + \vec{v} = (x_1 + x_2, y_1 + y_2)$</li>
+                    <li><strong>כפל וקטור בסקלר:</strong> $\alpha\vec{v} = (\alpha x, \alpha y)$</li>
+                </ul>
+                <div class="illustration-container">
+                    <!-- איור 2: מערכת צירים --><div class="math-diagram">
+                        <svg viewBox="-20 -120 140 140">
+                            <defs>
+                                <marker id="arrow-axis" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#333" />
+                                </marker>
+                            </defs>
+                            <title>וקטור במערכת צירים קרטזית</title>
+                            <!-- ציר Y --><line x1="0" y1="10" x2="0" y2="-110" class="axis" marker-end="url(#arrow-axis)" />
+                            <text x="5" y="-100">ציר $y$</text>
+                            <!-- ציר X --><line x1="-10" y1="0" x2="110" y2="0" class="axis" marker-end="url(#arrow-axis)" />
+                            <text x="100" y="-5">ציר $x$</text>
+                            <!-- וקטור --><line x1="0" y1="0" x2="80" y2="-60" class="vector vector-u" marker-end="url(#arrow)" />
+                            <text x="40" y="-25" fill="#007bff">$\vec{v} = (x, y)$</text>
+                            <!-- קווי עזר --><line x1="80" y1="0" x2="80" y2="-60" class="dashed" />
+                            <line x1="0" y1="-60" x2="80" y2="-60" class="dashed" />
+                            <!-- נקודות --><text x="80" y="15" font-size="12px">$x$</text>
+                            <text x="-15" y="-60" font-size="12px">$y$</text>
+                            <circle cx="0" cy="0" r="2" fill="#333" />
+                            <text x="-15" y="10" font-size="12px">(0,0)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- שקופית 4: מכפלה סקלרית --><div class="slide">
+                <h2>4. מכפלה סקלרית</h2>
+                
+                <div class="illustration-container" style="flex-grow: 0; margin-bottom: 15px; margin-top: 0;">
+                    <!-- איור 4: זווית בין וקטורים --><div class="math-diagram">
+                        <svg viewBox="-10 -70 180 80" height="150">
+                            <defs>
+                                <marker id="arrow-scalar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+                                </marker>
+                            </defs>
+                            <title>זווית בין וקטורים</title>
+                            <!-- וקטור v --><line x1="0" y1="0" x2="160" y2="0" class="vector vector-v" marker-end="url(#arrow-scalar)" />
+                            <text x="80" y="15">$\vec{v}$</text>
+                            
+                            <!-- וקטור u --><line x1="0" y1="0" x2="100" y2="-50" class="vector vector-u" marker-end="url(#arrow-scalar)" />
+                            <text x="45" y="-30">$\vec{u}$</text>
+                            
+                            <!-- זווית --><path d="M 30 0 A 30 30 0 0 0 24.8 -16.8" stroke="#333" stroke-width="1.5" fill="none" />
+                            <text x="35" y="-10">$\theta$</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <h3>הגדרה גיאומטרית (בין שני וקטורים):</h3>
+                <p style="text-align: center; width: 100%; font-size: 1.4rem;">
+                    $\vec{u} \cdot \vec{v} = |\vec{u}| |\vec{v}| \cos\theta$
+                </p>
+                <p>כאשר $\theta$ היא הזווית שבין שני הוקטורים.</p>
+
+                <h3>הגדרה אלגברית (במערכת קרטזית):</h3>
+                <p style="text-align: center; width: 100%; font-size: 1.4rem;">
+                    $\vec{(x_1, y_1)} \cdot \vec{(x_2, y_2)} = x_1x_2 + y_1y_2$
+                </p>
+                
+                <h3>תכונות חשובות:</h3>
+                <ul>
+                    <li>$\vec{u} \cdot \vec{v} = \vec{v} \cdot \vec{u}$ (קומוטטיביות)</li>
+                    <li>אם $\vec{u} \perp \vec{v}$ (מאונכים), אז $\vec{u} \cdot \vec{v} = 0$ (כי $\cos(90^\circ) = 0$)</li>
+                    <li>$\vec{u} \cdot \vec{u} = |\vec{u}|^2$</li>
+                </ul>
+            </div>
+
+            <!-- שקופית 5: היטל --><div class="slide">
+                <h2>5. היטל (Projection)</h2>
+                <p>היטל של וקטור $\vec{u}$ על וקטור $\vec{v}$ הוא ה"צל" ש$\vec{u}$ מטיל על הכיוון של $\vec{v}$.</p>
+                
+                <div class="illustration-container">
+                    <!-- איור 3: היטל --><div class="math-diagram">
+                        <svg viewBox="-10 -70 180 80">
+                            <defs>
+                                <marker id="arrow-proj" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+                                </marker>
+                            </defs>
+                            <title>איור גיאומטרי של היטל</title>
+                            <!-- וקטור v (בסיס) --><line x1="0" y1="0" x2="160" y2="0" class="vector vector-v" marker-end="url(#arrow-proj)" />
+                            <text x="80" y="15">$\vec{v}$</text>
+                            
+                            <!-- וקטור u --><line x1="0" y1="0" x2="100" y2="-50" class="vector vector-u" marker-end="url(#arrow-proj)" />
+                            <text x="45" y="-30">$\vec{u}$</text>
+                            
+                            <!-- קו עזר אנכי --><line x1="100" y1="-50" x2="100" y2="0" class="dashed" />
+                            <rect x="95" y="-5" width="5" height="5" stroke="#6c757d" fill="none" stroke-width="1.5" />
+                            
+                            <!-- היטל --><line x1="0" y1="0" x2="100" y2="0" class="vector vector-proj" stroke-width="3" marker-end="url(#arrow-proj)" />
+                            <text x="40" y="-5" fill="#b98000" font-weight="bold">$\text{proj}_{\vec{v}}(\vec{u})$</text>
+                            
+                            <!-- זווית --><path d="M 30 0 A 30 30 0 0 0 24.8 -16.8" stroke="#333" stroke-width="1.5" fill="none" />
+                            <text x="35" y="-10">$\theta$</text>
+                        </svg>
+                    </div>
+                </div>
+                
+                <h3>נוסחת ההיטל (באמצעות מכפלה סקלרית):</h3>
+                <p style="text-align: center; width: 100%; font-size: 1.4rem; direction: ltr;">
+                    $\text{proj}_{\vec{v}}(\vec{u}) = \left( \frac{\vec{u} \cdot \vec{v}}{|\vec{v}|^2} \right) \vec{v}$
+                </p>
+            </div>
+
+            <!-- שקופית 6: יישום - שטח משולש --><div class="slide">
+                <h2>6. יישום: חישוב שטח משולש</h2>
+                <p><strong>שאלה:</strong> חשב את שטח המשולש שקודקודיו הם $A = (1, 1)$, $B = (7, 2)$, $C = (3, 5)$.</p>
+                <p><strong>רעיון:</strong> נשתמש בנוסחה $\text{Area} = \frac{1}{2} \cdot \text{base} \cdot \text{height}$.</p>
+                <ul>
+                    <li>נבחר את הוקטור $\vec{AB}$ בתור בסיס.</li>
+                    <li>נמצא את וקטור הגובה $\vec{h}$ מהקודקוד $C$ לבסיס $\vec{AB}$.</li>
+                    <li>נשתמש בהיטל: $\vec{h} = \vec{AC} - \text{proj}_{\vec{AB}}(\vec{AC})$</li>
+                </ul>
+                
+                <div class="illustration-container" style="justify-content: center; flex-grow: 0; margin-bottom: 10px;">
+                    <!-- איור: משולש לחישוב שטח -->
+                    <div class="math-diagram">
+                        <svg viewBox="-10 -70 100 80" height="180">
+                             <defs>
+                                <marker id="arrow-area" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+                                </marker>
+                            </defs>
+                            <title>חישוב שטח משולש</title>
+                            <!-- צירים -->
+                            <line x1="0" y1="10" x2="0" y2="-65" class="axis" marker-end="url(#arrow-area)" />
+                            <text x="5" y="-60">$y$</text>
+                            <line x1="-5" y1="0" x2="90" y2="0" class="axis" marker-end="url(#arrow-area)" />
+                            <text x="85" y="-5">$x$</text>
+                            <!-- נקודות -->
+                            <circle cx="10" cy="-10" r="2" fill="#333" />
+                            <text x="5" y="-12" font-size="10px">$A(1,1)$</text>
+                            <circle cx="70" cy="-20" r="2" fill="#333" />
+                            <text x="72" y="-20" font-size="10px">$B(7,2)$</text>
+                            <circle cx="30" cy="-50" r="2" fill="#333" />
+                            <text x="25" y="-53" font-size="10px">$C(3,5)$</text>
+                            <!-- משולש -->
+                            <path d="M 10 -10 L 70 -20 L 30 -50 Z" stroke="#005A9C" fill="#005A9C" fill-opacity="0.1" stroke-width="2" />
+                            <!-- וקטורים -->
+                            <line x1="10" y1="-10" x2="70" y2="-20" class="vector vector-v" marker-end="url(#arrow-area)" />
+                            <text x="40" y="-10" font-size="12px">$\vec{AB}$ (בסיס)</text>
+                            <line x1="10" y1="-10" x2="30" y2="-50" class="vector vector-u" marker-end="url(#arrow-area)" />
+                            <text x="15" y="-30" font-size="12px">$\vec{AC}$</text>
+                            <!-- גובה -->
+                            <line x1="30" y1="-50" x2="35.9" y2="-14.3" class="dashed" stroke="red" />
+                            <text x="36" y="-35" fill="red" font-size="12px">$h$</text>
+                            <!-- נקודת ההיטל (P) -->
+                            <circle cx="35.9" cy="-14.3" r="1.5" fill="red" />
+                            <rect x="33.4" y="-16.8" width="5" height="5" stroke="red" fill="none" stroke-width="1.5" transform="rotate(-9.46 35.9 -14.3)" />
+                        </svg>
+                    </div>
+                </div>
+
+                <button class="solution-toggle">הצג פתרון</button>
+                <div class="solution-content" style="display: none;">
+                    <ol>
+                        <li><strong>בסיס:</strong> $\vec{u} = \vec{AB} = (7-1, 2-1) = (6, 1)$</li>
+                        <li><strong>אורך בסיס:</strong> $|\vec{u}| = \sqrt{6^2 + 1^2} = \sqrt{37}$</li>
+                        <li><strong>וקטור צלע:</strong> $\vec{v} = \vec{AC} = (3-1, 5-1) = (2, 4)$</li>
+                        <li><strong>היטל $\vec{v}$ על $\vec{u}$:</strong> $\vec{p} = \text{proj}_{\vec{u}}(\vec{v}) = \left( \frac{\vec{v} \cdot \vec{u}}{|\vec{u}|^2} \right) \vec{u}$</li>
+                        <li>$\vec{v} \cdot \vec{u} = (2)(6) + (4)(1) = 16$</li>
+                        <li>$\vec{p} = \left( \frac{16}{37} \right) (6, 1) = \left( \frac{96}{37}, \frac{16}{37} \right)$</li>
+                        <li><strong>וקטור גובה:</strong> $\vec{h} = \vec{v} - \vec{p} = (2, 4) - (\frac{96}{37}, \frac{16}{37}) = \left( \frac{74-96}{37}, \frac{148-16}{37} \right) = \left( -\frac{22}{37}, \frac{132}{37} \right)$</li>
+                        <li><strong>אורך גובה:</strong> $h = |\vec{h}| = \sqrt{ (-\frac{22}{37})^2 + (\frac{132}{37})^2 } = \frac{1}{37} \sqrt{22^2 + (6 \cdot 22)^2} = \frac{22}{37} \sqrt{1^2 + 6^2} = \frac{22 \sqrt{37}}{37}$</li>
+                        <li><strong>שטח:</strong> $\text{Area} = \frac{1}{2} \cdot |\vec{u}| \cdot h = \frac{1}{2} \cdot \sqrt{37} \cdot \frac{22 \sqrt{37}}{37} = \frac{1}{2} \cdot \frac{22 \cdot 37}{37} = \frac{22}{2} = 11$</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- שקופית 7: סיום --><div class="slide">
+                <h2>סוף הרצאה 1</h2>
+                <h1 style="font-size: 2.5rem; margin-top: 20px;">בהצלחה!</h1>
+            </div>
+
+        </div>
+
+        <!-- כפתורי ניווט --><button id="prevBtn" class="nav-button" title="הקודם (חץ שמאלה)">&#8249;</button>
+        <button id="nextBtn" class="nav-button" title="הבא (חץ ימינה)">&#8250;</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentSlide = 0;
+
+            function showSlide(n) {
+                // הסתרת כל השקופיות
+                slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+                
+                // עדכון אינדקס השקופית
+                currentSlide = n;
+                
+                // הצגת השקופית הנוכחית
+                if (slides[currentSlide]) {
+                    slides[currentSlide].classList.add('active');
+                }
+                
+                // עדכון כפתורי ניווט
+                prevBtn.disabled = (currentSlide === 0);
+                nextBtn.disabled = (currentSlide === slides.length - 1);
+                
+                // עיבוד מחדש של נוסחאות מתמטיות בשקופית הנוכחית
+                if (window.renderMathInElement) {
+                    renderMathInElement(slides[currentSlide], {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
+                        ]
+                    });
+                }
+            }
+
+            // פונקציות לניווט
+            function goToNextSlide() {
+                if (currentSlide < slides.length - 1) {
+                    showSlide(currentSlide + 1);
+                }
+            }
+
+            function goToPrevSlide() {
+                if (currentSlide > 0) {
+                    showSlide(currentSlide - 1);
+                }
+            }
+
+            // הוספת מאזינים לאירועים
+            prevBtn.addEventListener('click', goToPrevSlide);
+            nextBtn.addEventListener('click', goToNextSlide);
+            
+            // הוספת מאזין למקלדת
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === ' ') { // רווח או חץ ימינה
+                    goToNextSlide();
+                } else if (e.key === 'ArrowLeft') { // חץ שמאלה
+                    goToPrevSlide();
+                }
+            });
+
+            // --- הוספת מאזינים לכפתורי פתרון ---
+            const solutionToggles = document.querySelectorAll('.solution-toggle');
+            solutionToggles.forEach(button => {
+                button.addEventListener('click', () => {
+                    const solutionContent = button.nextElementSibling;
+                    if (solutionContent && solutionContent.classList.contains('solution-content')) {
+                        const isVisible = solutionContent.style.display === 'block';
+                        solutionContent.style.display = isVisible ? 'none' : 'block';
+                        button.textContent = isVisible ? 'הצג פתרון' : 'הסתר פתרון';
+                    }
+                });
+            });
+
+            // הצגת השקופית הראשונה בטעינה
+            showSlide(0);
+        });
+    </script>
 </body>
 </html>
+
+
+
