@@ -177,7 +177,7 @@
             border-radius: 8px;
             width: 100%;
             box-sizing: border-box;
-            direction: ltr; /* יישור הנוסחאות לשמאל */
+            direction: rtl;
         }
         .solution-content li {
             font-size: 1.1rem;
@@ -216,6 +216,15 @@
         
         #nextBtn {
             right: 20px; /* מיקום כפתור "הבא" בצד ימין */
+        }
+        .katex, .katex-display {
+            direction: ltr !important;
+            unicode-bidi: isolate !important; /* prevent inheriting RTL from parent */
+            text-align: left !important;
+        }
+        .katex-display {
+            margin-left: auto;
+            margin-right: auto;
         }
     </style>
 </head>
@@ -286,9 +295,9 @@
                             </defs>
                             <title>נקודה במערכת צירים</title>
                             <line x1="0" y1="10" x2="0" y2="-70" class="axis" marker-end="url(#arrow-axis-point)" />
-                            <text x="5" y="-60">ציר $y$</text>
+                            <text x="-5" y="-60">ציר y</text>
                             <line x1="-10" y1="0" x2="110" y2="0" class="axis" marker-end="url(#arrow-axis-point)" />
-                            <text x="100" y="-5">ציר $x$</text>
+                            <text x="100" y="-5">ציר x</text>
                             
                             <line x1="60" y1="0" x2="60" y2="-45" class="dashed" />
                             <line x1="0" y1="-45" x2="60" y2="-45" class="dashed" />
@@ -296,10 +305,10 @@
                             <circle cx="60" cy="-45" r="3" fill="#dc3545" />
                             <text x="65" y="-45" fill="#dc3545" font-weight="bold">$P = (4, 3)$</text>
                             
-                            <text x="60" y="15" font-size="12px">4</text>
-                            <text x="-15" y="-45" font-size="12px">3</text>
+                            <text x="65" y="15" font-size="12px">4</text>
+                            <text x="-5" y="-40" font-size="12px">3</text>
                             <circle cx="0" cy="0" r="2" fill="#333" />
-                            <text x="-15" y="10" font-size="12px">(0,0)</text>
+                            <text x="-5" y="15" font-size="12px">(0,0)</text>
                         </svg>
                     </div>
                 </div>
@@ -450,7 +459,7 @@
                             <text x="25" y="-53" font-size="10px">$C(3,5)$</text>
                             <path d="M 10 -10 L 70 -20 L 30 -50 Z" stroke="#005A9C" fill="#005A9C" fill-opacity="0.1" stroke-width="2" />
                             <line x1="10" y1="-10" x2="70" y2="-20" class="vector vector-v" marker-end="url(#arrow-area)" />
-                            <text x="40" y="-10" font-size="12px">$\vec{AB}$ (בסיס)</text>
+                            <text x="40" y="-1" font-size="12px">$\vec{AB}$ (בסיס)</text>
                             <line x1="10" y1="-10" x2="30" y2="-50" class="vector vector-u" marker-end="url(#arrow-area)" />
                             <text x="15" y="-30" font-size="12px">$\vec{AC}$</text>
                             <line x1="30" y1="-50" x2="35.9" y2="-14.3" class="dashed" stroke="red" />
