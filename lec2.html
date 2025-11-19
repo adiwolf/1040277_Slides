@@ -163,6 +163,16 @@
         }
         .title-slide p { font-size: 1.5rem; color: #666; max-width: 800px; margin: 20px auto; }
 
+        .katex, .katex-display {
+            direction: ltr !important;
+            unicode-bidi: isolate !important; /* prevent inheriting RTL from parent */
+            text-align: left !important;
+        }
+        .katex-display {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
     </style>
 </head>
 <body>
