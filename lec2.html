@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מצגת: מתמטיקה לארכיטקטורה - הרצאה 1</title>
+    <!-- טעינת Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- טעינת גופן Rubik -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap">
+    
+    <!-- טעינת KaTeX (ספריה להצגת נוסחאות) -->
+    <!-- תיקון: xintegrity -> integrity -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0KOVEMVIgtRsBOpGkmJPARnBuf7CwiLUPCACAUdebugLGc5pRTqDJDR" crossorigin="anonymous">
+    <!-- תיקון: xintegrity -> integrity, והוספת defer -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <!-- תיקון: xintegrity -> integrity, והוספת defer -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURPl3keyCpgkrPCiJqgwjxwAnxMVB44oUvJ3NdGWbtn+ORu276vLfx" crossorigin="anonymous"></script>
+    
+    
+        <style>
+        /* הגדרות בסיסיות */
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #333;
+            color: #333;
+            /* --- תיקון 1: הסרנו את 'overflow: hidden;' --- */
+            /* ההגדרה הזו מנעה גלילה של כל העמוד במסכים נמוכים */
+            direction: rtl; /* קביעת כיוון מימין לשמאל */
+        }
+
+        /* קונטיינר למצגת */
+        #presentation-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            min-height: 100vh; /* נוודא שהקונטיינר תמיד לפחות בגובה המסך */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* קונטיינר לשקופיות */
+        #slide-container {
+            width: 100%;
+            max-width: 1100px; /* רוחב מירבי */
+            aspect-ratio: 16 / 9; /* יחס גובה-רוחב של שקופית */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden; /* זה בסדר להשאיר כאן, כדי לשמור על צורת ה-16:9 */
+        }
+
+        /* עיצוב שקופית בודדת */
+        .slide {
+            width: 100%;
+            height: 100%;
+            padding: 40px 60px;
+            box-sizing: border-box;
+            display: none; /* כל השקופיות מוסתרות כברירת מחדל */
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            
+            /* --- תיקון 2: הוספנו 'overflow-y: auto;' --- */
+            /* זה יוסיף פס גלילה פנימי *בתוך* השקף, 
+               רק אם התוכן שלו ארוך מדי (כמו בשקף 6 עם הפתרון) */
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex; /* השקופית הפעילה מוצגת */
+        }
+
+        /* עיצוב כותרות */
+        .slide h1 {
+            font-size: 3rem;
+            color: #005A9C;
+            margin-top: auto; /* ממקם את הכותרת הראשית במרכז */
+            margin-bottom: auto;
+            text-align: center;
+            width: 100%;
+        }
+
+        .slide h2 {
+            font-size: 2.2rem;
+            color: #004170;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #005A9C;
+            width: 100%;
+        }
+        
+        .slide h3 {
+            font-size: 1.6rem;
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* עיצוב רשימות וטקסט */
+        ul {
+            padding-right: 20px; /* הזחה לימין */
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* קונטיינר לאיורים */
+        .illustration-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .math-diagram {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        /* סגנון ל-SVG */
+        .math-diagram svg {
+            width: 100%;
+            height: auto;
+            max-width: 350px;
+            overflow: visible;
+        }
+        
+        .math-diagram text {
+            font-size: 14px;
+            font-family: sans-serif;
+            fill: #000;
+        }
+        
+        /* סגנונות ספציפיים לאלמנטים באיור */
+        .vector { stroke-width: 2.5; }
+        .vector-u { stroke: #007bff; }
+        .vector-v { stroke: #dc3545; }
+        .vector-sum { stroke: #28a745; }
+        .vector-proj { stroke: #ffc107; }
+        .dashed { stroke-dasharray: 4 4; stroke: #6c757d; stroke-width: 1.5; }
+        .axis { stroke: #333; stroke-width: 1.5; }
+        .grid-line { stroke: #eee; stroke-width: 1; }
+        
+        /* סגנון לכפתור ולוח פתרון */
+        .solution-toggle {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        .solution-toggle:hover {
+            background-color: #0056b3;
+        }
+        .solution-content {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            direction: rtl;
+        }
+        .solution-content li {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        /* כפתורי ניווט */
+        .nav-button {
+            position: absolute;
+            bottom: 20px;
+            background-color: #005A9C;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            line-height: 40px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
+            z-index: 10;
+        }
+        .nav-button:hover {
+            background-color: #004170;
+        }
+        .nav-button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        #prevBtn {
+            left: 20px; /* מיקום כפתור "הקודם" בצד שמאל */
+        }
+        
+        #nextBtn {
+            right: 20px; /* מיקום כפתור "הבא" בצד ימין */
+        }
+        .katex, .katex-display {
+            direction: ltr !important;
+            unicode-bidi: isolate !important; /* prevent inheriting RTL from parent */
+            text-align: left !important;
+        }
+        .katex-display {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="presentation-container">
+        
+
+            <!-- SLIDE 1: Title -->
+    <div class="slide-container active title-slide" id="slide1">
+        <h1>מתמטיקה לתלמידי ארכיטקטורה</h1>
+        <h2 style="border: none; font-size: 2.8rem;">הרצאה 2: המישור הממשי - נקודות וישרים</h2>
+        <p>
+            בשיעור זה נעסוק בתיאור אלגברי של ישרים במישור, מצבים הדדיים בין ישרים (מקבילים/ניצבים), וחישובי מרחקים.
+        </p>
+        <div class="slide-num">1 / 7</div>
+    </div>
+
+    <!-- SLIDE 2: Review (Page 1 Content) -->
+    <div class="slide-container" id="slide2">
+        <span class="tag-reminder">תזכורת: הרצאה 1</span>
+        <h2>חזרה: וקטורים ופעולות יסוד</h2>
+        <div class="two-col">
+            <div class="col-text">
+                <ul>
+                    <li><strong>הגדרה:</strong> גודל בעל כיוון (חץ). במערכת צירים: $\vec{v}=(x,y)$.</li>
+                    <li><strong>אורך:</strong> $|\vec{v}| = \sqrt{x^2+y^2}$.</li>
+                    <li><strong>פעולות:</strong>
+                        <ul>
+                            <li>חיבור: $(x_1,y_1) + (x_2,y_2) = (x_1+x_2, y_1+y_2)$</li>
+                            <li>כפל בסקלר: $\alpha(x,y) = (\alpha x, \alpha y)$</li>
+                        </ul>
+                    </li>
+                    <li><strong>מכפלה סקלרית:</strong> $\vec{u}\cdot\vec{v} = x_1x_2 + y_1y_2 = |\vec{u}||\vec{v}|\cos\theta$</li>
+                    <li><strong>היטל:</strong> הטלת וקטור אחד על כיוון של אחר.</li>
+                </ul>
+            </div>
+            <div class="col-visual">
+                <!-- SVG: Vector Summary -->
+                <svg viewBox="-10 -10 220 170">
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#005c97" /></marker>
+                        <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#e74c3c" /></marker>
+                    </defs>
+                    <!-- Vectors -->
+                    <line x1="10" y1="150" x2="150" y2="150" stroke="#333" stroke-width="1" /> <!-- axis -->
+                    <line x1="10" y1="150" x2="10" y2="10" stroke="#333" stroke-width="1" /> <!-- axis -->
+                    
+                    <!-- Vector U -->
+                    <line x1="10" y1="150" x2="100" y2="100" stroke="#005c97" stroke-width="3" marker-end="url(#arrow)" />
+                    <text x="50" y="115" class="label" fill="#005c97">u</text>
+                    
+                    <!-- Vector V -->
+                    <line x1="10" y1="150" x2="130" y2="150" stroke="#e74c3c" stroke-width="3" marker-end="url(#arrow-red)" />
+                    <text x="110" y="170" class="label" fill="#e74c3c">v</text>
+                    
+                    <!-- Projection -->
+                    <line x1="100" y1="100" x2="100" y2="150" stroke="#888" stroke-dasharray="4" />
+                    <text x="10" y="170" class="label" font-size="12">היטל = |u|cosθ</text>
+                    
+                    <!-- Angle -->
+                    <path d="M 40 150 A 30 30 0 0 0 35 135" fill="none" stroke="#333" />
+                    <text x="45" y="145" class="label">θ</text>
+                </svg>
+            </div>
+        </div>
+        <div class="slide-num">2 / 7</div>
+    </div>
+
+    <!-- SLIDE 3: Lines in the Plane -->
+    <div class="slide-container" id="slide3">
+        <h2>1. ישרים במישור (הצגה מפורשת)</h2>
+        <div class="two-col">
+            <div class="col-text">
+                <p>ישר הוא אוסף נקודות המקיים משוואה ליניארית:</p>
+                <div class="formula-card">
+                    $ax + by + c = 0$
+                </div>
+                <p>כאשר $a$ ו-$b$ לא שניהם אפס.</p>
+                
+                <h3>מקרים פרטיים:</h3>
+                <ul>
+                    <li><strong>כאשר $b=0$:</strong> הישר הוא $x = -\frac{c}{a}$ (מקביל לציר $y$).</li>
+                    <li><strong>כאשר $b \neq 0$:</strong> ניתן לסדר למשוואה המפורשת:
+                        $$y = -\frac{a}{b}x - \frac{c}{b} \Rightarrow y = \alpha x + \beta$$
+                    </li>
+                </ul>
+                <p>$\alpha$ הוא <strong>שיפוע הישר</strong> (Slope).</p>
+            </div>
+            <div class="col-visual">
+                <!-- SVG: Linear Equation -->
+                <svg viewBox="0 0 200 200">
+                    <!-- Grid -->
+                    <path d="M0 100 L200 100 M100 0 L100 200" class="axis"/>
+                    
+                    <!-- Line y = 0.5x + 20 -->
+                    <line x1="0" y1="140" x2="200" y2="40" class="line-primary" />
+                    <text x="140" y="30" class="label" fill="#005c97">y = αx + β</text>
+                    
+                    <!-- Vertical Line -->
+                    <line x1="160" y1="10" x2="160" y2="190" class="line-secondary" />
+                    <text x="165" y="180" class="label" fill="#e74c3c">x = const</text>
+
+                    <!-- Slope Triangle -->
+                    <line x1="60" y1="110" x2="100" y2="110" stroke="#555" stroke-width="1"/>
+                    <line x1="100" y1="110" x2="100" y2="90" stroke="#555" stroke-width="1"/>
+                    <text x="75" y="125" class="label" font-size="10">1</text>
+                    <text x="105" y="105" class="label" font-size="10">α</text>
+                </svg>
+            </div>
+        </div>
+        <div class="slide-num">3 / 7</div>
+    </div>
+
+    <!-- SLIDE 4: Relative Positions (Fixed) -->
+    <div class="slide-container" id="slide4">
+        <h2>מצבים הדדיים בין ישרים</h2>
+        <div class="two-col">
+            <div class="col-text">
+                <p>נתונים שני ישרים $l_1, l_2$ עם שיפועים $\alpha_1, \alpha_2$.</p>
+                
+                <h3>1. ישרים מקבילים ($l_1 || l_2$)</h3>
+                <div class="formula-card">
+                    $\alpha_1 = \alpha_2$
+                </div>
+                <p>אין נקודת חיתוך (או שהישרים מתלכדים).</p>
+
+                <h3>2. ישרים נחתכים</h3>
+                <div class="formula-card">
+                    $\alpha_1 \neq \alpha_2$
+                </div>
+                <p>יש נקודת חיתוך אחת ויחידה.</p>
+
+                <div class="special-case-box">
+                    <h4>מקרה פרטי: ישרים ניצבים ($l_1 \perp l_2$)</h4>
+                    <p>הישרים נחתכים בזווית של $90^\circ$.</p>
+                    <div style="font-weight: bold;">$\alpha_1 \cdot \alpha_2 = -1$</div>
+                </div>
+            </div>
+            <div class="col-visual">
+                <!-- SVG: Parallel, Intersecting, Perpendicular -->
+                <svg viewBox="0 0 250 300">
+                    <!-- Section 1: Parallel -->
+                    <g transform="translate(0, 20)">
+                        <text x="10" y="0" class="label" font-size="12">1. מקבילים</text>
+                        <line x1="20" y1="60" x2="100" y2="20" class="line-primary" />
+                        <line x1="20" y1="90" x2="100" y2="50" class="line-primary" />
+                    </g>
+
+                    <!-- Section 2: General Intersecting -->
+                    <g transform="translate(0, 140)">
+                        <text x="10" y="0" class="label" font-size="12">2. נחתכים (כללי)</text>
+                        <line x1="20" y1="80" x2="100" y2="20" class="line-tertiary" />
+                        <line x1="20" y1="30" x2="100" y2="60" class="line-tertiary" />
+                        <circle cx="64" cy="47" r="3" fill="#333" />
+                    </g>
+
+                    <!-- Section 3: Perpendicular (Special Case) -->
+                    <g transform="translate(130, 140)">
+                        <text x="10" y="0" class="label" font-size="12" fill="#e74c3c">מקרה פרטי: ניצבים</text>
+                        <line x1="20" y1="80" x2="100" y2="20" class="line-secondary" />
+                        <line x1="30" y1="10" x2="90" y2="90" class="line-secondary" />
+                        <!-- Right Angle Marker -->
+                        <path d="M 70 55 L 63 47 L 71 41 L 78 49 Z" fill="#ddd" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <div class="slide-num">4 / 7</div>
+    </div>
+
+    <!-- SLIDE 5: Parametric Form -->
+    <div class="slide-container" id="slide5">
+        <h2>הצגה פרמטרית של ישר</h2>
+        <div class="two-col">
+            <div class="col-text">
+                <p>ניתן להגדיר ישר באמצעות:</p>
+                <ol>
+                    <li>נקודה על הישר: $P_0 = (x_0, y_0)$</li>
+                    <li>וקטור כיוון: $\vec{v} = (a, b)$</li>
+                </ol>
+                
+                <div class="formula-card">
+                    $\begin{cases} x = x_0 + at \\ y = y_0 + bt \end{cases}$
+                </div>
+                <p>כאשר $t$ הוא פרמטר ממשי ($\mathbb{R}$).</p>
+                <p>כל ערך של $t$ נותן נקודה אחרת על הישר.</p>
+            </div>
+            <div class="col-visual">
+                <!-- SVG: Parametric Line -->
+                <svg viewBox="0 0 300 200">
+                    <defs>
+                        <marker id="arrow-vec" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#333" /></marker>
+                    </defs>
+                    <!-- Axes -->
+                    <path d="M20 180 L280 180 M20 20 L20 180" class="axis"/>
+                    
+                    <!-- The Line -->
+                    <line x1="50" y1="150" x2="250" y2="50" class="line-primary" stroke-dasharray="5,5" opacity="0.5"/>
+                    
+                    <!-- Point P0 -->
+                    <circle cx="90" cy="130" r="4" class="point" />
+                    <text x="95" y="125" class="label">P₀(x₀,y₀)</text>
+                    
+                    <!-- Direction Vector -->
+                    <line x1="90" y1="130" x2="130" y2="110" stroke="#333" stroke-width="2" marker-end="url(#arrow-vec)" />
+                    <text x="120" y="100" class="label">vector (a,b)</text>
+                    
+                    <!-- Point P(t) -->
+                    <circle cx="170" cy="90" r="4" fill="#e74c3c" />
+                    <text x="175" y="85" class="label" fill="#e74c3c">P(t)</text>
+                </svg>
+            </div>
+        </div>
+        <div class="slide-num">5 / 7</div>
+    </div>
+
+    <!-- SLIDE 6: Distances -->
+    <div class="slide-container" id="slide6">
+        <h2>2. חישובי מרחקים</h2>
+        <div class="two-col">
+            <div class="col-text">
+                <h3>א. מרחק בין שתי נקודות $A, B$:</h3>
+                <div class="formula-card">
+                    $d(A,B) = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$
+                </div>
+
+                <h3>ב. מרחק נקודה $(x_0,y_0)$ מישר $ax+by+c=0$:</h3>
+                <div class="formula-card">
+                    $d = \frac{|ax_0 + by_0 + c|}{\sqrt{a^2 + b^2}}$
+                </div>
+                
+                <p><strong>הערות:</strong></p>
+                <ul>
+                    <li>מרחק בין ישרים נחתכים הוא 0.</li>
+                    <li>מרחק בין ישרים מקבילים: נבחר נקודה על האחד ונחשב מרחק לשני.</li>
+                </ul>
+            </div>
+            <div class="col-visual">
+                <!-- SVG: Distance Point to Line -->
+                <svg viewBox="0 0 250 200">
+                    <!-- Line -->
+                    <line x1="20" y1="150" x2="230" y2="50" class="line-primary" />
+                    <text x="180" y="60" class="label" fill="#005c97">ax+by+c=0</text>
+                    
+                    <!-- Point -->
+                    <circle cx="150" cy="150" r="4" fill="#e74c3c" />
+                    <text x="155" y="145" class="label" fill="#e74c3c">(x₀,y₀)</text>
+                    
+                    <!-- Distance Segment -->
+                    <line x1="150" y1="150" x2="118" y2="103" class="dashed" stroke="#e74c3c" />
+                    <text x="140" y="120" class="label" fill="#e74c3c">d</text>
+                    
+                    <!-- Perpendicular Symbol at connection -->
+                    <g transform="rotate(-25, 118, 103)">
+                        <rect x="118" y="93" width="10" height="10" fill="none" stroke="#555" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <div class="slide-num">6 / 7</div>
+    </div>
+
+    <!-- SLIDE 7: Proof (Elegant Vector Method) -->
+    <div class="slide-container" id="slide7">
+        <h2>הוכחת נוסחת מרחק נקודה מישר</h2>
+        <div class="two-col">
+            <div class="col-text">
+                <p>נרצה להוכיח שהמרחק בין $P_0(x_0,y_0)$ לישר $ax+by+c=0$ הוא $d = \frac{|ax_0 + by_0 + c|}{\sqrt{a^2 + b^2}}$.</p>
+                
+                <ol style="font-size: 1.1rem;">
+                    <li>נסמן ב-$\vec{n}=(a,b)$ את <strong>הנורמל</strong> לישר.</li>
+                    <li>נבחר נקודה שרירותית $P_1(x_1,y_1)$ על הישר, ולכן $ax_1+by_1+c=0$.</li>
+                    <li>המרחק $d$ הוא גודל <strong>ההיטל</strong> של הוקטור $\vec{P_1P_0}$ על הנורמל $\vec{n}$.</li>
+                </ol>
+
+                <div class="formula-card" style="font-size: 1.1rem;">
+                    $$d = \frac{|\vec{P_1P_0} \cdot \vec{n}|}{|\vec{n}|} = \frac{|(x_0-x_1, y_0-y_1) \cdot (a,b)|}{\sqrt{a^2+b^2}}$$
+                    $$= \frac{|a(x_0-x_1) + b(y_0-y_1)|}{\sqrt{a^2+b^2}} = \frac{|ax_0+by_0 - (ax_1+by_1)|}{\sqrt{a^2+b^2}}$$
+                </div>
+                <p style="font-size: 1.1rem;">מכיוון ש-$ax_1+by_1 = -c$, נקבל: $d = \frac{|ax_0+by_0+c|}{\sqrt{a^2+b^2}}$. מ.ש.ל.</p>
+            </div>
+            <div class="col-visual">
+                <!-- SVG: Vector Proof Visualization -->
+                <svg viewBox="0 0 300 250">
+                    <defs>
+                        <marker id="arrow-n" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#27ae60" /></marker>
+                    </defs>
+                    
+                    <!-- The Line -->
+                    <line x1="20" y1="200" x2="280" y2="80" class="line-primary" opacity="0.8"/>
+                    <text x="200" y="80" class="label" fill="#005c97">Line l</text>
+                    
+                    <!-- Point P1 (on line) -->
+                    <circle cx="100" cy="163" r="4" class="point" />
+                    <text x="90" y="185" class="label">P₁</text>
+
+                    <!-- Point P0 (off line) -->
+                    <circle cx="180" cy="40" r="4" fill="#e74c3c" />
+                    <text x="185" y="35" class="label" fill="#e74c3c">P₀</text>
+
+                    <!-- Vector P1 -> P0 -->
+                    <line x1="100" y1="163" x2="180" y2="40" stroke="#333" stroke-width="1.5" stroke-dasharray="4" />
+                    
+                    <!-- Normal Vector n -->
+                    <line x1="100" y1="163" x2="130" y2="228" stroke="#27ae60" stroke-width="3" marker-end="url(#arrow-n)" />
+                    <text x="135" y="220" class="label" fill="#27ae60">n=(a,b)</text>
+
+                    <!-- Projection (Distance d) -->
+                    <line x1="180" y1="40" x2="153" y2="138" stroke="#e74c3c" stroke-width="3" />
+                    <text x="170" y="100" class="label" fill="#e74c3c">d</text>
+                    
+                    <!-- Projection visual aid lines -->
+                    <line x1="153" y1="138" x2="100" y2="163" stroke="#888" stroke-width="1" />
+                    <path d="M 158 128 L 165 132 L 160 142" fill="none" stroke="#555" /> <!-- Right Angle -->
+                </svg>
+            </div>
+        </div>
+        <div class="slide-num">7 / 7</div>
+    </div>
+
+        </div>
+
+        <button id="prevBtn" class="nav-button" title="הקודם (חץ שמאלה)">&#8249;</button>
+        <button id="nextBtn" class="nav-button" title="הבא (חץ ימינה)">&#8250;</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentSlide = 0;
+
+            function showSlide(n) {
+                // הסתרת כל השקופיות
+                slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+                
+                // עדכון אינדקס השקופית
+                currentSlide = n;
+                
+                // הצגת השקופית הנוכחית
+                if (slides[currentSlide]) {
+                    slides[currentSlide].classList.add('active');
+                    // --- חשוב: לאפס גלילה קודמת ---
+                    // אם נכנסנו לשקף ארוך שגללנו בו, ואז עברנו
+                    // לשקף אחר וחזרנו, נרצה שהוא יתחיל מההתחלה.
+                    slides[currentSlide].scrollTop = 0;
+                }
+                
+                // עדכון כפתורי ניווט
+                prevBtn.disabled = (currentSlide === 0);
+                nextBtn.disabled = (currentSlide === slides.length - 1);
+                
+                // עיבוד מחדש של נוסחאות מתמטיות בשקופית הנוכחית
+                if (window.renderMathInElement) {
+                    renderMathInElement(slides[currentSlide], {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
+                        ]
+                    });
+                }
+            }
+
+            // פונקציות לניווט
+            function goToNextSlide() {
+                if (currentSlide < slides.length - 1) {
+                    showSlide(currentSlide + 1);
+                }
+            }
+
+            function goToPrevSlide() {
+                if (currentSlide > 0) {
+                    showSlide(currentSlide - 1);
+                }
+            }
+
+            // הוספת מאזינים לאירועים
+            prevBtn.addEventListener('click', goToPrevSlide);
+            nextBtn.addEventListener('click', goToNextSlide);
+            
+            // הוספת מאזין למקלדת
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === ' ') { // רווח או חץ ימינה
+                    goToNextSlide();
+                } else if (e.key === 'ArrowLeft') { // חץ שמאלה
+                    goToPrevSlide();
+                }
+            });
+
+            // --- הוספת מאזינים לכפתורי פתרון ---
+            const solutionToggles = document.querySelectorAll('.solution-toggle');
+            solutionToggles.forEach(button => {
+                button.addEventListener('click', () => {
+                    const solutionContent = button.nextElementSibling;
+                    if (solutionContent && solutionContent.classList.contains('solution-content')) {
+                        const isVisible = solutionContent.style.display === 'block';
+                        solutionContent.style.display = isVisible ? 'none' : 'block';
+                        button.textContent = isVisible ? 'הצג פתרון' : 'הסתר פתרון';
+                    }
+                });
+            });
+
+            // הצגת השקופית הראשונה בטעינה
+            showSlide(0);
+        });
+    </script>
+</body>
+</html>
