@@ -1,239 +1,173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מצגת: מתמטיקה לארכיטקטורה - הרצאה 1</title>
-    <!-- טעינת Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- טעינת גופן Rubik -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap">
+    <title>הרצאה 2: המישור הממשי - נקודות וישרים</title>
     
-    <!-- טעינת KaTeX (ספריה להצגת נוסחאות) -->
-    <!-- תיקון: xintegrity -> integrity -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0KOVEMVIgtRsBOpGkmJPARnBuf7CwiLUPCACAUdebugLGc5pRTqDJDR" crossorigin="anonymous">
-    <!-- תיקון: xintegrity -> integrity, והוספת defer -->
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
-    <!-- תיקון: xintegrity -> integrity, והוספת defer -->
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURPl3keyCpgkrPCiJqgwjxwAnxMVB44oUvJ3NdGWbtn+ORu276vLfx" crossorigin="anonymous"></script>
-    
-    
-        <style>
-        /* הגדרות בסיסיות */
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #333;
-            color: #333;
-            /* --- תיקון 1: הסרנו את 'overflow: hidden;' --- */
-            /* ההגדרה הזו מנעה גלילה של כל העמוד במסכים נמוכים */
-            direction: rtl; /* קביעת כיוון מימין לשמאל */
-        }
+    <!-- טעינת KaTeX להצגת נוסחאות מתמטיות -->
+    <!-- שימוש ב-defer ו-integrity תקינים, והסרת onload שגרם לשגיאה -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" xintegrity="sha384-wcIxkf4k558fYv3eWK7go8HWaISdCZtfqpcOkoVhtGzMgEFQR5T9sMvAAR+NRSYJ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" xintegrity="sha384-hIoBPJpTadx52G6POQj0e1fDHYveBxQI8/tYKeNffPimfTgoOOM2iC2dE/fIZr42" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" xintegrity="sha384-43gviWU0YVjaDtb/Gf1ESgOGfD7RhPK7E9zODitL5pcA/mXwhiQOpB3YtySXzBCW" crossorigin="anonymous"></script>
 
-        /* קונטיינר למצגת */
-        #presentation-container {
+    <style>
+        /* === BASE STYLES === */
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #e0e5ec;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%;
-            min-height: 100vh; /* נוודא שהקונטיינר תמיד לפחות בגובה המסך */
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* קונטיינר לשקופיות */
-        #slide-container {
-            width: 100%;
-            max-width: 1100px; /* רוחב מירבי */
-            aspect-ratio: 16 / 9; /* יחס גובה-רוחב של שקופית */
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden; /* זה בסדר להשאיר כאן, כדי לשמור על צורת ה-16:9 */
-        }
-
-        /* עיצוב שקופית בודדת */
-        .slide {
-            width: 100%;
-            height: 100%;
-            padding: 40px 60px;
-            box-sizing: border-box;
-            display: none; /* כל השקופיות מוסתרות כברירת מחדל */
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            font-size: 1.2rem;
-            line-height: 1.6;
-            
-            /* --- תיקון 2: הוספנו 'overflow-y: auto;' --- */
-            /* זה יוסיף פס גלילה פנימי *בתוך* השקף, 
-               רק אם התוכן שלו ארוך מדי (כמו בשקף 6 עם הפתרון) */
-            overflow-y: auto;
-        }
-
-        .slide.active {
-            display: flex; /* השקופית הפעילה מוצגת */
-        }
-
-        /* עיצוב כותרות */
-        .slide h1 {
-            font-size: 3rem;
-            color: #005A9C;
-            margin-top: auto; /* ממקם את הכותרת הראשית במרכז */
-            margin-bottom: auto;
-            text-align: center;
-            width: 100%;
-        }
-
-        .slide h2 {
-            font-size: 2.2rem;
-            color: #004170;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #005A9C;
-            width: 100%;
-        }
-        
-        .slide h3 {
-            font-size: 1.6rem;
+            min-height: 100vh;
             color: #333;
-            margin-top: 15px;
-            margin-bottom: 10px;
         }
 
-        /* עיצוב רשימות וטקסט */
-        ul {
-            padding-right: 20px; /* הזחה לימין */
-        }
-        
-        li {
-            margin-bottom: 10px;
-        }
-
-        /* קונטיינר לאיורים */
-        .illustration-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            width: 100%;
-            margin-top: 20px;
-            flex-grow: 1;
-        }
-
-        .math-diagram {
-            border: 1px solid #ccc;
+        /* === SLIDE CONTAINER === */
+        .slide-container {
+            background-color: #fff;
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             border-radius: 8px;
-            padding: 10px;
-            background-color: #f9f9f9;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            padding: 50px 70px;
         }
 
-        /* סגנון ל-SVG */
-        .math-diagram svg {
-            width: 100%;
-            height: auto;
-            max-width: 350px;
-            overflow: visible;
-        }
-        
-        .math-diagram text {
-            font-size: 14px;
-            font-family: sans-serif;
-            fill: #000;
-        }
-        
-        /* סגנונות ספציפיים לאלמנטים באיור */
-        .vector { stroke-width: 2.5; }
-        .vector-u { stroke: #007bff; }
-        .vector-v { stroke: #dc3545; }
-        .vector-sum { stroke: #28a745; }
-        .vector-proj { stroke: #ffc107; }
-        .dashed { stroke-dasharray: 4 4; stroke: #6c757d; stroke-width: 1.5; }
-        .axis { stroke: #333; stroke-width: 1.5; }
-        .grid-line { stroke: #eee; stroke-width: 1; }
-        
-        /* סגנון לכפתור ולוח פתרון */
-        .solution-toggle {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            margin-top: 15px;
-            transition: background-color 0.3s;
-        }
-        .solution-toggle:hover {
-            background-color: #0056b3;
-        }
-        .solution-content {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border: 1px dashed #ccc;
-            border-radius: 8px;
-            width: 100%;
-            box-sizing: border-box;
-            direction: rtl;
-        }
-        .solution-content li {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
+        .slide-container.active { display: flex; }
 
-        /* כפתורי ניווט */
-        .nav-button {
+        /* Header Accent */
+        .slide-container::before {
+            content: '';
             position: absolute;
-            bottom: 20px;
-            background-color: #005A9C;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
-            line-height: 40px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: background-color 0.3s;
+            top: 0; left: 0;
+            width: 100%; height: 8px;
+            background: linear-gradient(90deg, #005c97, #363795);
+        }
+
+        /* === TYPOGRAPHY === */
+        h1 { font-size: 3.8rem; margin-bottom: 10px; color: #003366; }
+        h2 { font-size: 2.4rem; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 30px; color: #003366; }
+        h3 { font-size: 1.6rem; color: #005c97; margin-top: 0; margin-bottom: 10px; }
+        h4 { font-size: 1.3rem; color: #444; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
+        
+        p, li {
+            font-size: 1.3rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            color: #444;
+        }
+
+        .tag-reminder {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* === LAYOUTS === */
+        .two-col {
+            display: flex;
+            gap: 50px;
+            height: 100%;
+            align-items: center;
+        }
+        
+        .col-text { flex: 1.2; }
+        .col-visual { 
+            flex: 1; 
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f9fbfc;
+            border-radius: 12px;
+            border: 1px solid #eef2f5;
+            padding: 20px;
+        }
+
+        .formula-card {
+            background: #f0f4f8;
+            border-left: 5px solid #005c97;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 1.2rem;
+        }
+        
+        .special-case-box {
+            background-color: #e8f4f8;
+            border: 1px solid #bce0fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        /* === SVG STYLING === */
+        svg { width: 100%; height: 100%; max-height: 400px; }
+        .axis { stroke: #aaa; stroke-width: 1.5; }
+        .grid-line { stroke: #eee; stroke-width: 1; }
+        .line-primary { stroke: #005c97; stroke-width: 3; }
+        .line-secondary { stroke: #e74c3c; stroke-width: 3; }
+        .line-tertiary { stroke: #27ae60; stroke-width: 3; }
+        .point { fill: #333; }
+        .label { font-family: 'Segoe UI', sans-serif; font-size: 14px; fill: #555; font-weight: 600; }
+        .dashed { stroke-dasharray: 5,5; stroke: #888; stroke-width: 1.5; }
+
+        /* === NAVIGATION === */
+        .nav-controls {
+            position: absolute;
+            bottom: 25px;
+            left: 30px;
+            display: flex;
+            gap: 15px;
             z-index: 10;
         }
-        .nav-button:hover {
-            background-color: #004170;
+
+        .btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
         }
-        .nav-button:disabled {
-            background-color: #aaa;
-            cursor: not-allowed;
+
+        .btn:hover { background: #555; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .slide-num {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: #999;
+            font-size: 1.1rem;
         }
-        
-        #prevBtn {
-            left: 20px; /* מיקום כפתור "הקודם" בצד שמאל */
+
+        /* Title Slide specific */
+        .title-slide { 
+            text-align: center; 
+            justify-content: center; 
         }
-        
-        #nextBtn {
-            right: 20px; /* מיקום כפתור "הבא" בצד ימין */
-        }
-        .katex, .katex-display {
-            direction: ltr !important;
-            unicode-bidi: isolate !important; /* prevent inheriting RTL from parent */
-            text-align: left !important;
-        }
-        .katex-display {
-            margin-left: auto;
-            margin-right: auto;
-        }
+        .title-slide p { font-size: 1.5rem; color: #666; max-width: 800px; margin: 20px auto; }
+
     </style>
 </head>
 <body>
 
-    <div id="presentation-container">
-        
-
-            <!-- SLIDE 1: Title -->
+    <!-- SLIDE 1: Title -->
     <div class="slide-container active title-slide" id="slide1">
         <h1>מתמטיקה לתלמידי ארכיטקטורה</h1>
         <h2 style="border: none; font-size: 2.8rem;">הרצאה 2: המישור הממשי - נקודות וישרים</h2>
@@ -546,95 +480,63 @@
         <div class="slide-num">7 / 7</div>
     </div>
 
-        </div>
-
-        <button id="prevBtn" class="nav-button" title="הקודם (חץ שמאלה)">&#8249;</button>
-        <button id="nextBtn" class="nav-button" title="הבא (חץ ימינה)">&#8250;</button>
+    <!-- NAVIGATION BUTTONS -->
+    <div class="nav-controls">
+        <button class="btn" onclick="prevSlide()" id="prevBtn">הקודם</button>
+        <button class="btn" onclick="nextSlide()" id="nextBtn">הבא</button>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const slides = document.querySelectorAll('.slide');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            let currentSlide = 0;
+        let currentSlide = 1;
+        const totalSlides = 7;
 
-            function showSlide(n) {
-                // הסתרת כל השקופיות
-                slides.forEach(slide => {
-                    slide.classList.remove('active');
+        // פונקציה לאיתחול נוסחאות מתמטיות
+        function initMath() {
+            if(window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false}
+                    ]
                 });
-                
-                // עדכון אינדקס השקופית
-                currentSlide = n;
-                
-                // הצגת השקופית הנוכחית
-                if (slides[currentSlide]) {
-                    slides[currentSlide].classList.add('active');
-                    // --- חשוב: לאפס גלילה קודמת ---
-                    // אם נכנסנו לשקף ארוך שגללנו בו, ואז עברנו
-                    // לשקף אחר וחזרנו, נרצה שהוא יתחיל מההתחלה.
-                    slides[currentSlide].scrollTop = 0;
-                }
-                
-                // עדכון כפתורי ניווט
-                prevBtn.disabled = (currentSlide === 0);
-                nextBtn.disabled = (currentSlide === slides.length - 1);
-                
-                // עיבוד מחדש של נוסחאות מתמטיות בשקופית הנוכחית
-                if (window.renderMathInElement) {
-                    renderMathInElement(slides[currentSlide], {
-                        delimiters: [
-                            {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false},
-                            {left: '\\(', right: '\\)', display: false},
-                            {left: '\\[', right: '\\]', display: true}
-                        ]
-                    });
-                }
             }
+        }
 
-            // פונקציות לניווט
-            function goToNextSlide() {
-                if (currentSlide < slides.length - 1) {
-                    showSlide(currentSlide + 1);
-                }
-            }
-
-            function goToPrevSlide() {
-                if (currentSlide > 0) {
-                    showSlide(currentSlide - 1);
-                }
-            }
-
-            // הוספת מאזינים לאירועים
-            prevBtn.addEventListener('click', goToPrevSlide);
-            nextBtn.addEventListener('click', goToNextSlide);
+        function updateSlides() {
+            document.querySelectorAll('.slide-container').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            document.getElementById('slide' + currentSlide).classList.add('active');
             
-            // הוספת מאזין למקלדת
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowRight' || e.key === ' ') { // רווח או חץ ימינה
-                    goToNextSlide();
-                } else if (e.key === 'ArrowLeft') { // חץ שמאלה
-                    goToPrevSlide();
-                }
-            });
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // רינדור נוסף למקרה של טעינה מאוחרת
+            initMath();
+        }
 
-            // --- הוספת מאזינים לכפתורי פתרון ---
-            const solutionToggles = document.querySelectorAll('.solution-toggle');
-            solutionToggles.forEach(button => {
-                button.addEventListener('click', () => {
-                    const solutionContent = button.nextElementSibling;
-                    if (solutionContent && solutionContent.classList.contains('solution-content')) {
-                        const isVisible = solutionContent.style.display === 'block';
-                        solutionContent.style.display = isVisible ? 'none' : 'block';
-                        button.textContent = isVisible ? 'הצג פתרון' : 'הסתר פתרון';
-                    }
-                });
-            });
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlides();
+            }
+        }
 
-            // הצגת השקופית הראשונה בטעינה
-            showSlide(0);
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlides();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "ArrowLeft") nextSlide();
+            else if (event.key === "ArrowRight") prevSlide();
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            initMath();
+            updateSlides();
         });
     </script>
 </body>
