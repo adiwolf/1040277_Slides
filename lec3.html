@@ -200,11 +200,25 @@ vb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,ea.A);X();kf();h.A=0}
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
 <!-- טעינת KaTeX להצגת נוסחאות מתמטיות -->
     <!-- שימוש ב-defer ו-integrity תקינים, והסרת onload שגרם לשגיאה -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" xintegrity="sha384-wcIxkf4k558fYv3eWK7go8HWaISdCZtfqpcOkoVhtGzMgEFQR5T9sMvAAR+NRSYJ" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" xintegrity="sha384-hIoBPJpTadx52G6POQj0e1fDHYveBxQI8/tYKeNffPimfTgoOOM2iC2dE/fIZr42" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" xintegrity="sha384-43gviWU0YVjaDtb/Gf1ESgOGfD7RhPK7E9zODitL5pcA/mXwhiQOpB3YtySXzBCW" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
- 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            // הגדרת המפרידים (delimiters)
+            delimiters: [
+                {left: '$$', right: '$$', display: true},  // נוסחה בשורה נפרדת
+                {left: '$', right: '$', display: false},   // נוסחה בתוך השורה ()
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ],
+            // אופציות נוספות למניעת שגיאות
+            throwOnError : false
+        });
+    });
+</script> 
  <style>
         body {
             font-family: 'Heebo', sans-serif;
@@ -400,7 +414,7 @@ vb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,ea.A);X();kf();h.A=0}
 </div>
 </div>
 <div class="bg-slate-900 text-white p-6 rounded-lg text-center relative overflow-hidden">
-<img alt="bg" class="absolute inset-0 w-full h-full object-cover opacity-20" go-data-src="/gen?prompt=futuristic+architectural+structure+glowing+blue+lines+black+background&amp;aspect=16:9" src="blob:https://0sc1z466yiws3rjb4hgd5s77xkvdagf7g0gr1r900murze1tyn-h833788197.scf.usercontent.goog/42792fbe-ea8b-4c1c-b262-cc64b20ca0c6" style="aspect-ratio: 16/9">
+<img alt="bg" class="absolute inset-0 w-full h-full object-cover opacity-20" go-data-src="/gen?prompt=futuristic+architectural+structure+glowing+blue+lines+black+background&amp;aspect=16:9" src="pic.png" style="aspect-ratio: 16/9">
 <div class="relative z-10">
 <h3 class="text-xl font-bold mb-2">בהצלחה!</h3>
 <p class="text-sm text-slate-300 mb-4">
@@ -429,7 +443,7 @@ vb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,ea.A);X();kf();h.A=0}
 <!-- Slide 1: Cover -->
 <div data-slide="0">
 <div class="space-y-6">
-<img alt="Architectural Blueprint" class="w-full rounded-lg shadow-md mb-4" go-data-src="/gen?prompt=architectural+blueprint+sketch+of+modern+building+geometry+lines+blue+and+white+clean+minimalist&amp;aspect=16:9" src="blob:https://0sc1z466yiws3rjb4hgd5s77xkvdagf7g0gr1r900murze1tyn-h833788197.scf.usercontent.goog/4ed1cb12-5e7b-4e73-aede-fdfea3913354" style="aspect-ratio: 16/9">
+<img alt="Architectural Blueprint" class="w-full rounded-lg shadow-md mb-4" go-data-src="/gen?prompt=architectural+blueprint+sketch+of+modern+building+geometry+lines+blue+and+white+clean+minimalist&amp;aspect=16:9" src="pic.png" style="aspect-ratio: 16/9">
 <h2 class="text-3xl font-black text-slate-900">המרחב הממשי</h2>
 <p class="text-lg text-slate-600">
                 בהרצאה זו נלמד לתאר ישרים ומישורים במרחב תלת-ממדי, 
