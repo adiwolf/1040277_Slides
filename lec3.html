@@ -205,20 +205,26 @@ vb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,ea.A);X();kf();h.A=0}
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-            // הגדרת המפרידים (delimiters)
-            delimiters: [
-                {left: '$$', right: '$$', display: true},  // נוסחה בשורה נפרדת
-                {left: '$', right: '$', display: false},   // נוסחה בתוך השורה ()
-                {left: '\\(', right: '\\)', display: false},
-                {left: '\\[', right: '\\]', display: true}
-            ],
-            // אופציות נוספות למניעת שגיאות
-            throwOnError : false
-        });
+    // משתמשים ב-window.onload שמחכה לטעינה מלאה של כל המשאבים (כולל תמונות וסקריפטים אחרים)
+    window.addEventListener("load", function() {
+        // מוסיפים השהייה קטנה של חצי שנייה (500ms) כדי לתת לסקריפטים אחרים (כמו זה שבונה את השקופיות) לסיים
+        setTimeout(function() {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            } else {
+                console.error("KaTeX לא נטען בהצלחה. בדקו את החיבור לאינטרנט או את הקישורים לספריות.");
+            }
+        }, 500); 
     });
-</script> 
+</script>
  <style>
         body {
             font-family: 'Heebo', sans-serif;
