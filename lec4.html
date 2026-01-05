@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>מתמטיקה לארכיטקטורה: פונקציות וגרפים</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- JSZip for client-side zipping -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&amp;display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Heebo', 'sans-serif'],
+                        mono: ['Courier Prime', 'monospace'],
+                    },
+                    colors: {
+                        arch: {
+                            dark: '#0f172a', // Slate 900
+                            paper: '#1e293b', // Slate 800
+                            line: '#38bdf8', // Sky 400
+                            accent: '#facc15', // Yellow 400
+                            error: '#f43f5e', // Rose 500
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        .blueprint-grid {
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .slide-enter {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .math-text {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #facc15;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #475569;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="blueprint-grid min-h-screen flex flex-col font-sans">
+    
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 w-full bg-arch-paper/90 backdrop-blur-md border-b border-slate-700 z-50 h-16 flex items-center justify-between px-6 shadow-lg">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-arch-accent">architecture</span>
+                <h1 class="font-bold text-lg hidden md:block">מתמטיקה לארכיטקטורה: הרצאה 4</h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <span class="text-slate-400 text-sm font-mono" id="slide-counter">1 / 7</span>
+            <div class="flex gap-2">
+                <button class="p-2 rounded-full hover:bg-slate-700 transition disabled:opacity-50" id="btn-prev" onclick="prevSlide()">
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+                <button class="p-2 rounded-full hover:bg-slate-700 transition disabled:opacity-50" id="btn-next" onclick="nextSlide()" disabled="">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow pt-20 pb-12 px-4 md:px-8 max-w-6xl mx-auto w-full relative">
+        
+        <!-- Slide 1: Intro -->
+        <section class="slide active-slide" id="slide-0">
+            <div class="flex flex-col md:flex-row items-center gap-8 mt-10">
+                <div class="w-full md:w-1/2 space-y-6 slide-enter">
+                    <div class="inline-block bg-arch-accent text-arch-dark px-3 py-1 rounded font-bold text-sm">הרצאה 4</div>
+                    <h1 class="text-4xl md:text-6xl font-black leading-tight">
+                        פונקציות:<br>
+                        <span class="text-arch-line">השפה של הצורה</span>
+                    </h1>
+                    <p class="text-xl text-slate-300">
+                        הבנת מושגי יסוד: הגדרה, תחום, טווח, חד-חד-ערכיות ומונוטוניות דרך משקפי הארכיטקטורה.
+                    </p>
+                    <div class="p-4 border-l-4 border-arch-accent bg-slate-800/50">
+                        <p class="text-sm">
+                            "המתמטיקה היא המבנה הבלתי נראה עליו עומדת הארכיטקטורה."
+                        </p>
+                    </div>
+                    <button class="bg-arch-line hover:bg-sky-500 text-arch-dark font-bold py-3 px-8 rounded-lg transition flex items-center gap-2" onclick="nextSlide()">
+                        התחל ללמוד
+                        <span class="material-symbols-outlined text-sm">arrow_back</span>
+                    </button>
+                </div>
+                <div class="w-full md:w-1/2 h-80 md:h-96 relative rounded-xl overflow-hidden shadow-2xl border border-slate-700 slide-enter">
+                    <!-- Updated Image Source for Preview -->
+                    <img 
+                        alt="Architectural Abstract" 
+                        class="w-full h-full object-cover opacity-80" 
+                        src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1600&q=80"
+                    >
+                    <div class="absolute inset-0 bg-gradient-to-t from-arch-dark to-transparent"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Definition & Domain -->
+        <section class="slide hidden" id="slide-1">
+            <div class="grid md:grid-cols-2 gap-8 h-full">
+                <div class="space-y-6 slide-enter">
+                    <h2 class="text-3xl font-bold border-b border-slate-700 pb-2">1. הגדרת הפונקציה ותחום הגדרה</h2>
+                    <div class="bg-slate-800 p-6 rounded-lg shadow-inner">
+                        <p class="mb-4">
+                            <span class="font-bold text-arch-accent">הגדרה:</span>
+                            פונקציה <span class="math-text">f: X → Y</span> מתאימה לכל איבר <span class="math-text">x ∈ X</span> (קלט) איבר <span class="math-text">y ∈ Y</span> יחיד (פלט).
+                        </p>
+                        <p class="text-sm text-slate-400 mb-2">דוגמה מההרצאה:</p>
+                        <div class="text-xl font-mono text-center bg-arch-dark p-3 rounded border border-slate-600">
+                            f(x) = √(6x - x² - 5)
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-xl font-bold text-arch-line">יישום אדריכלי: הקשת הרומית</h3>
+                        <p class="text-slate-300">
+                            פונקציה זו מתארת חצי מעגל (קשת). באדריכלות, עלינו לדעת מהו "רוחב המפתח" האפשרי. זהו <strong>תחום ההגדרה</strong>.
+                            מבחינה מתמטית, הביטוי בתוך השורש חייב להיות אי-שלילי:
+                            <br>
+                            <span class="math-text" dir="ltr">-x² + 6x - 5 ≥ 0</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-arch-paper rounded-xl p-6 flex flex-col items-center justify-center relative border border-slate-700 slide-enter" style="animation-delay: 0.2s;">
+                    <!-- Added z-10 to bring the label to front -->
+                    <div class="absolute top-4 right-4 bg-black/50 px-2 py-1 rounded text-xs font-mono text-arch-line z-10">INTERACTIVE: ARCH BUILDER</div>
+                    <!-- Visualization Canvas -->
+                    <!-- Added mt-4 to push the visualization down slightly so it doesn't visually crowd the label -->
+                    <div class="relative w-full h-64 bg-arch-dark rounded border border-slate-600 mb-4 mt-4 overflow-hidden flex items-end justify-center">
+                        <div class="relative w-full h-full" id="arch-viz-container">
+                            <!-- Pillars (Static) -->
+                            <div class="absolute bottom-0 left-[10%] w-[10%] h-32 bg-slate-600"></div>
+                            <div class="absolute bottom-0 right-[10%] w-[10%] h-32 bg-slate-600"></div>
+                            <!-- The Arch (Dynamic SVG) -->
+                            <svg class="absolute bottom-32 left-0 w-full h-full" id="arch-svg" preserveAspectRatio="none" viewBox="0 0 100 50">
+                                <path d="M 20 50 A 30 30 0 0 1 80 50" fill="none" id="arch-path" stroke="#38bdf8" stroke-width="2"></path>
+                                <line stroke="#475569" stroke-width="1" x1="0" x2="100" y1="50" y2="50"></line>
+                            </svg>
+                            <!-- User Position Marker -->
+                            <div class="absolute bottom-32 w-4 h-4 bg-arch-accent rounded-full transform -translate-x-1/2 translate-y-1/2 transition-all duration-75 shadow-[0_0_10px_#facc15]" id="user-marker" style="left: 50%"></div>
+                        </div>
+                    </div>
+                    <div class="w-full space-y-4">
+                        <div class="flex justify-between text-sm">
+                            <span>בחר מיקום x (מטרים):</span>
+                            <span class="font-mono text-arch-accent" id="x-val-display">x = 3.0</span>
+                        </div>
+                        <input class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer" id="domain-slider" max="6" min="0" step="0.1" type="range" value="3">
+                        <div class="p-3 rounded bg-slate-700 text-center text-sm font-mono min-h-[60px] flex flex-col justify-center" id="calc-result">
+                            <!-- JS will populate -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: One-to-One -->
+        <section class="slide hidden" id="slide-2">
+            <div class="grid md:grid-cols-2 gap-8 h-full">
+                <div class="space-y-6 slide-enter">
+                    <h2 class="text-3xl font-bold border-b border-slate-700 pb-2">2. פונקציה חד-חד-ערכית (חח"ע)</h2>
+                    <div class="bg-slate-800 p-6 rounded-lg">
+                        <p class="mb-4">
+                            <span class="font-bold text-arch-accent">הגדרה:</span>
+                            פונקציה נקראת חח"ע אם לערכי <span class="math-text">x</span> שונים מתקבלים ערכי <span class="math-text">f(x)</span> שונים.
+                            <br>
+                            <span class="math-text" dir="ltr">x₁ ≠ x₂ ⇒ f(x₁) ≠ f(x₂)</span>
+                        </p>
+                        <div class="border-l-4 border-yellow-500 pl-4 my-4">
+                            <h4 class="font-bold text-yellow-500">דוגמה אדריכלית: זיהוי חללים</h4>
+                            <p class="text-sm text-slate-300">
+                                מערכת מספור חדרים תקינה היא פונקציה חח"ע.
+                                <br>
+                                <strong>קלט (x):</strong> מספר חדר בתוכנית.
+                                <br>
+                                <strong>פלט (y):</strong> החלל הפיזי במציאות.
+                                <br>
+                                אם לשני מספרים שונים (101 ו-102) יש את אותו חלל פיזי - זו טעות בתכנון!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-arch-paper rounded-xl p-6 border border-slate-700 slide-enter flex flex-col" style="animation-delay: 0.2s;">
+                    <h3 class="text-lg font-bold mb-4 text-center">תרגיל: הקצאת מפתחות לחדרים</h3>
+                    <p class="text-xs text-center text-slate-400 mb-6">לחץ על מפתח ואז על חדר כדי לחבר ביניהם. נסה ליצור מצב שאינו חח"ע.</p>
+                    <div class="flex justify-between items-center gap-8 px-4 relative flex-grow">
+                        <!-- Inputs (Keys) -->
+                        <div class="flex flex-col gap-6 w-1/3">
+                            <div class="text-center text-sm text-arch-line mb-2">מפתחות (X)</div>
+                            <button class="key-btn w-full py-3 bg-slate-700 hover:bg-slate-600 rounded border border-slate-500 flex items-center justify-center gap-2 transition" data-id="k1">
+                                <span class="material-symbols-outlined text-yellow-500">key</span> 101
+                            </button>
+                            <button class="key-btn w-full py-3 bg-slate-700 hover:bg-slate-600 rounded border border-slate-500 flex items-center justify-center gap-2 transition" data-id="k2">
+                                <span class="material-symbols-outlined text-yellow-500">key</span> 102
+                            </button>
+                            <button class="key-btn w-full py-3 bg-slate-700 hover:bg-slate-600 rounded border border-slate-500 flex items-center justify-center gap-2 transition" data-id="k3">
+                                <span class="material-symbols-outlined text-yellow-500">key</span> 103
+                            </button>
+                        </div>
+                        <!-- Canvas for Lines -->
+                        <canvas class="absolute inset-0 pointer-events-none w-full h-full z-10" id="connections-canvas" width="0" height="0"></canvas>
+                        <!-- Outputs (Rooms) -->
+                        <div class="flex flex-col gap-6 w-1/3 z-20">
+                            <div class="text-center text-sm text-arch-line mb-2">חדרים (Y)</div>
+                            <button class="room-btn w-full py-3 bg-slate-900 hover:bg-slate-800 rounded border border-slate-600 flex items-center justify-center gap-2 transition" data-id="rA">
+                                <span class="material-symbols-outlined text-cyan-400">meeting_room</span> A
+                            </button>
+                            <button class="room-btn w-full py-3 bg-slate-900 hover:bg-slate-800 rounded border border-slate-600 flex items-center justify-center gap-2 transition" data-id="rB">
+                                <span class="material-symbols-outlined text-cyan-400">meeting_room</span> B
+                            </button>
+                            <button class="room-btn w-full py-3 bg-slate-900 hover:bg-slate-800 rounded border border-slate-600 flex items-center justify-center gap-2 transition" data-id="rC">
+                                <span class="material-symbols-outlined text-cyan-400">meeting_room</span> C
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-3 text-center rounded font-bold bg-slate-800 text-slate-400 min-h-[50px] flex items-center justify-center border border-slate-700" id="injection-status">
+                        התחל לחבר מפתחות לחדרים...
+                    </div>
+                    <button class="mt-2 text-xs text-slate-500 hover:text-white underline self-center" onclick="resetConnections()">אפס חיבורים</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Monotonicity -->
+        <section class="slide hidden" id="slide-3">
+            <div class="grid md:grid-cols-2 gap-8 h-full">
+                <div class="space-y-4 slide-enter overflow-y-auto max-h-[70vh] pr-2">
+                    <h2 class="text-3xl font-bold border-b border-slate-700 pb-2">3. עליה וירידה (מונוטוניות)</h2>
+                    <div class="space-y-4 text-sm md:text-base">
+                        <div class="bg-slate-800/50 p-3 rounded hover:bg-slate-800 transition border-r-4 border-green-500">
+                            <strong class="text-green-400 text-lg">עולה ממש</strong>
+                            <p>ככל שמתקדמים (x גדל), הגובה עולה. <span class="math-text">x₁ &lt; x₂ ⇒ f(x₁) &lt; f(x₂)</span></p>
+                            <p class="text-slate-400 mt-1 italic">דוגמה: רמפה לכיסא גלגלים (שיפוע קבוע).</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-3 rounded hover:bg-slate-800 transition border-r-4 border-yellow-500">
+                            <strong class="text-yellow-400 text-lg">עולה (לא ממש) / לא יורדת</strong>
+                            <p>הגובה עולה או נשאר קבוע, אך לא יורד.</p>
+                            <p class="text-slate-400 mt-1 italic">דוגמה: גרם מדרגות עם פודסטים (משטחי ביניים).</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-3 rounded hover:bg-slate-800 transition border-r-4 border-red-500">
+                            <strong class="text-red-400 text-lg">יורדת ממש</strong>
+                            <p>ככל שמתקדמים, הגובה יורד.</p>
+                            <p class="text-slate-400 mt-1 italic">דוגמה: שיפוע ניקוז גג, מושבים באמפיתיאטרון (בירידה לבמה).</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-arch-paper rounded-xl p-1 border border-slate-700 slide-enter relative flex flex-col" style="animation-delay: 0.2s;">
+                    <div class="absolute top-2 right-2 z-10 bg-black/70 px-3 py-1 text-xs rounded text-white font-mono">חתך אדריכלי</div>
+                    <!-- SVG Interactive Chart -->
+                    <div class="relative flex-grow w-full bg-grid-pattern overflow-hidden cursor-crosshair group" id="section-container">
+                        <svg class="w-full h-full" id="section-svg" viewBox="0 0 400 200">
+                            <!-- Definitions for gradient -->
+                            <defs>
+                                <linearGradient id="ground-grad" x1="0" x2="0" y1="0" y2="1">
+                                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.2"></stop>
+                                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"></stop>
+                                </linearGradient>
+                            </defs>
+                            <!-- Grid lines -->
+                            <g stroke="#334155" stroke-width="0.5">
+                                <line x1="0" x2="400" y1="50" y2="50"></line>
+                                <line x1="0" x2="400" y1="100" y2="100"></line>
+                                <line x1="0" x2="400" y1="150" y2="150"></line>
+                                <line x1="100" x2="100" y1="0" y2="200"></line>
+                                <line x1="200" x2="200" y1="0" y2="200"></line>
+                                <line x1="300" x2="300" y1="0" y2="200"></line>
+                            </g>
+                            <!-- The Graph Path (Building Section) -->
+                            <path d="M 0 180 L 100 100 L 150 100 L 200 50 L 300 120 L 400 120" fill="none" id="building-section" stroke="#38bdf8" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"></path>
+                            <!-- Area under curve -->
+                            <path d="M 0 180 L 100 100 L 150 100 L 200 50 L 300 120 L 400 120 L 400 200 L 0 200 Z" fill="url(#ground-grad)" opacity="0.5"></path>
+                            <!-- Interactive Dot -->
+                            <circle cx="0" cy="180" fill="#facc15" id="tracer-dot" r="6" stroke="white" stroke-width="2" style="display: none;"></circle>
+                        </svg>
+                        <!-- Tooltip -->
+                        <div class="absolute pointer-events-none bg-slate-900/90 text-white text-xs px-2 py-1 rounded border border-slate-500 hidden transform -translate-x-1/2 -translate-y-12 transition-opacity" id="mono-tooltip">
+                            <span id="mono-text">בחר נקודה</span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-slate-800 text-center text-sm text-slate-300">
+                        הזז את העכבר על פני החתך כדי לראות את סוג המונוטוניות בכל מקטע.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Graphs -->
+        <section class="slide hidden" id="slide-4">
+            <div class="grid md:grid-cols-2 gap-8 h-full">
+                <div class="space-y-6 slide-enter">
+                    <h2 class="text-3xl font-bold border-b border-slate-700 pb-2">4. גרף הפונקציה באדריכלות</h2>
+                    <p class="text-lg">
+                        הגרף <span class="math-text">{(x, f(x))}</span> הוא הייצוג הוויזואלי של הפונקציה. באדריכלות, פונקציות מתמטיות הופכות לצורות פיזיות.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <!-- Fixed Image: Sagrada Familia interior showing Catenary-style arches -->
+                            <img alt="Catenary Arch - Sagrada Familia" class="w-24 h-24 rounded object-cover border border-slate-600 shadow-lg" src="https://images.unsplash.com/photo-1576694389650-6756627521a0?auto=format&fit=crop&w=800&q=80">
+                            <div>
+                                <h4 class="font-bold text-arch-line">הקו הקטנרי (Catenary)</h4>
+                                <p class="text-sm text-slate-400">אנטוני גאודי השתמש בשרשראות תלויות כדי למצוא את הצורה האופטימלית לקשתות (קוסינוס היפרבולי). צורה זו "מחזיקה את עצמה" בצורה הטובה ביותר.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-24 h-24 bg-slate-800 rounded border border-slate-600 flex items-center justify-center">
+                                <span class="text-3xl font-mono">y=x²</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-arch-line">הפרבולה</h4>
+                                <p class="text-sm text-slate-400">משמשת לעיתים קרובות בגשרים תלויים ובמבני בטון מודרניים לחלוקת עומסים אחידה.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-arch-paper rounded-xl p-6 border border-slate-700 slide-enter flex flex-col" style="animation-delay: 0.2s;">
+                    <h3 class="font-bold text-center mb-4">מעבדה: עיצוב קשת פרבולית</h3>
+                    <div class="flex-grow bg-arch-dark rounded border border-slate-600 relative overflow-hidden flex items-end justify-center">
+                        <canvas class="w-full h-full" id="parabola-canvas"></canvas>
+                        <!-- Silhouette of a person for scale -->
+                        <span class="material-symbols-outlined absolute bottom-2 left-1/2 text-slate-500 transform -translate-x-1/2 text-4xl opacity-50">man</span>
+                    </div>
+                    <div class="mt-4 space-y-4 bg-slate-800 p-4 rounded">
+                        <div class="flex items-center gap-4">
+                            <label class="w-20 text-xs font-bold">גובה (H)</label>
+                            <input class="flex-grow" id="param-h" max="9" min="1" step="0.1" type="range" value="5">
+                            <span class="w-8 text-right font-mono text-xs" id="val-h">5.0</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <label class="w-20 text-xs font-bold">רוחב (W)</label>
+                            <input class="flex-grow" id="param-w" max="10" min="2" step="0.1" type="range" value="6">
+                            <span class="w-8 text-right font-mono text-xs" id="val-w">6.0</span>
+                        </div>
+                        <div class="text-center font-mono text-arch-accent text-sm pt-2 border-t border-slate-700 mt-2">
+                            y = -<span id="calc-a">0.55</span>x² + <span id="calc-h">5.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Quiz Slide -->
+        <section class="slide hidden" id="slide-5">
+            <div class="grid md:grid-cols-2 gap-8 h-full">
+                <!-- Left: Quiz Controls -->
+                <div class="space-y-6 slide-enter">
+                    <h2 class="text-3xl font-bold border-b border-slate-700 pb-2">5. תרגול מסכם: ניתוח פונקציות</h2>
+                    <p class="text-sm text-slate-400">בחר פונקציה מהרשימה וסמן את התכונות הנכונות עבורה.</p>
+                    <!-- Function Selection -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="quiz-func-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-center font-mono transition selected" data-idx="0" onclick="selectQuizFunc(0)">f(x) = x + 1</button>
+                        <button class="quiz-func-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-center font-mono transition" data-idx="1" onclick="selectQuizFunc(1)">f(x) = x²</button>
+                        <button class="quiz-func-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-center font-mono transition" data-idx="2" onclick="selectQuizFunc(2)">f(x) = x³</button>
+                        <button class="quiz-func-btn p-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded text-center font-mono transition" data-idx="3" onclick="selectQuizFunc(3)">f(x) = |x|</button>
+                    </div>
+                    <!-- Questions -->
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 space-y-4">
+                        <h4 class="font-bold text-arch-accent mb-4" id="quiz-title">עבור הפונקציה f(x) = x + 1</h4>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-700 rounded">
+                            <input class="w-5 h-5 accent-arch-line rounded" id="q-one-to-one" type="checkbox">
+                            <span>האם הפונקציה חד-חד-ערכית?</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-700 rounded">
+                            <input class="w-5 h-5 accent-arch-line rounded" id="q-increasing" type="checkbox">
+                            <span>האם הפונקציה עולה ממש (לכל x)?</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-700 rounded">
+                            <input class="w-5 h-5 accent-arch-line rounded" id="q-decreasing" type="checkbox">
+                            <span>האם הפונקציה יורדת ממש (לכל x)?</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-700 rounded">
+                            <input class="w-5 h-5 accent-arch-line rounded" id="q-even" type="checkbox">
+                            <span>האם הפונקציה זוגית (סימטרית לציר Y)?</span>
+                        </label>
+                        <button class="w-full mt-4 bg-arch-line text-arch-dark font-bold py-3 rounded hover:bg-sky-400 transition" onclick="checkQuizAnswer()">בדוק תשובה</button>
+                    </div>
+                    <!-- Feedback Area -->
+                    <div class="hidden p-4 rounded border text-center transition-all" id="quiz-feedback"></div>
+                </div>
+                <!-- Right: Visualizer -->
+                <div class="bg-arch-paper rounded-xl p-4 border border-slate-700 slide-enter flex flex-col" style="animation-delay: 0.2s;">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs text-slate-400">גרף הפונקציה</span>
+                        <span class="text-xs font-mono text-arch-line">x: [-5, 5]</span>
+                    </div>
+                    <div class="relative flex-grow bg-arch-dark rounded border border-slate-600 overflow-hidden">
+                        <canvas class="w-full h-full" id="quiz-canvas"></canvas>
+                        <!-- Axis Labels -->
+                        <span class="absolute top-2 left-1/2 -translate-x-1/2 text-xs text-slate-500">Y</span>
+                        <span class="absolute top-1/2 right-2 -translate-y-1/2 text-xs text-slate-500">X</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: Summary -->
+        <section class="slide hidden text-center h-full flex flex-col justify-center items-center" id="slide-6">
+            <h2 class="text-4xl font-bold mb-8 text-arch-accent slide-enter">סיכום ההרצאה</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl slide-enter" style="animation-delay: 0.2s;">
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-arch-line transition">
+                    <span class="material-symbols-outlined text-4xl text-arch-line mb-4">function</span>
+                    <h3 class="text-xl font-bold mb-2">פונקציה</h3>
+                    <p class="text-sm text-slate-400">התאמה יחידה בין תחום (קלט) לטווח (פלט). קריטי לחישובי שטחים ועומסים.</p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-arch-line transition">
+                    <span class="material-symbols-outlined text-4xl text-arch-line mb-4">key</span>
+                    <h3 class="text-xl font-bold mb-2">חח"ע</h3>
+                    <p class="text-sm text-slate-400">לכל תוצאה יש מקור יחיד. מונע כפילויות במערכות זיהוי ומיפוי.</p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-arch-line transition">
+                    <span class="material-symbols-outlined text-4xl text-arch-line mb-4">trending_up</span>
+                    <h3 class="text-xl font-bold mb-2">מונוטוניות</h3>
+                    <p class="text-sm text-slate-400">ניתוח מגמות של עליה וירידה. חיוני לתכנון רמפות, גגות וניקוז.</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-4 mt-12 slide-enter" style="animation-delay: 0.4s;">
+                <button class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition" onclick="location.reload()">
+                    <span class="material-symbols-outlined">replay</span>
+                    התחל מחדש
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Zip Download Logic ---
+        async function downloadZip() {
+            try {
+                const zip = new JSZip();
+                
+                // Get the current document HTML
+                // We add the DOCTYPE because outerHTML doesn't include it
+                const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                
+                // Add to zip
+                zip.file("architecture_presentation.html", htmlContent);
+                
+                // Note for user about image
+                zip.file("README.txt", "Note: If you want to use your custom image in slide 1, please place the file '43f02cb5-d2f9-4e3d-9728-3e9c97c60559.jpg' in this folder and update line ~135 in the HTML.");
+
+                // Generate blob
+                const content = await zip.generateAsync({type: "blob"});
+                
+                // Trigger download
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(content);
+                link.download = "architecture_lecture_4.zip";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (err) {
+                console.error("Failed to zip:", err);
+                alert("שגיאה ביצירת קובץ ה-ZIP.");
+            }
+        }
+
+        // --- Navigation Logic ---
+        let currentSlide = 0;
+        const totalSlides = 7;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('slide-counter');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.remove('hidden');
+                    // Reset animation
+                    const children = slide.querySelectorAll('.slide-enter');
+                    children.forEach(child => {
+                        child.style.animation = 'none';
+                        child.offsetHeight; /* trigger reflow */
+                        child.style.animation = null; 
+                    });
+                } else {
+                    slide.classList.add('hidden');
+                }
+            });
+            counter.innerText = `${currentSlide + 1} / ${totalSlides}`;
+            
+            btnNext.disabled = currentSlide === 0;
+            btnPrev.disabled = currentSlide === totalSlides - 1;
+
+            // Trigger specific inits
+            if(currentSlide === 1) initDomainViz();
+            if(currentSlide === 4) drawParabola();
+            if(currentSlide === 5) initQuiz();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // --- Slide 2: Domain Visualizer Logic ---
+        const domainSlider = document.getElementById('domain-slider');
+        const userMarker = document.getElementById('user-marker');
+        const xValDisplay = document.getElementById('x-val-display');
+        const calcResult = document.getElementById('calc-result');
+
+        function initDomainViz() {
+            updateDomainCalc();
+        }
+
+        if(domainSlider) {
+            domainSlider.addEventListener('input', updateDomainCalc);
+        }
+
+        function updateDomainCalc() {
+            if(!domainSlider) return;
+            const x = parseFloat(domainSlider.value);
+            xValDisplay.innerText = `x = ${x.toFixed(1)}`;
+            
+            // Map x (0 to 6) to visual percentage (0% to 100%)
+            const percent = (x / 6) * 100;
+            userMarker.style.left = `${percent}%`;
+
+            // Function: sqrt(6x - x^2 - 5)
+            const inner = 6*x - x*x - 5;
+            
+            if (inner >= 0) {
+                const y = Math.sqrt(inner);
+                userMarker.style.bottom = `${(y * 20) + 128}px`; // Scale factor for visual
+                userMarker.style.backgroundColor = '#facc15'; // Yellow
+                userMarker.style.boxShadow = '0 0 10px #facc15';
+                
+                calcResult.innerHTML = `
+                    <div class="text-green-400 font-bold">ערך תקין!</div>
+                    <div>f(${x}) = √${inner.toFixed(2)} = ${y.toFixed(2)}</div>
+                    <div class="text-xs text-slate-400 mt-1">גובה הקשת בנקודה זו</div>
+                `;
+            } else {
+                userMarker.style.bottom = '128px'; // Ground level
+                userMarker.style.backgroundColor = '#f43f5e'; // Red
+                userMarker.style.boxShadow = '0 0 10px #f43f5e';
+                
+                calcResult.innerHTML = `
+                    <div class="text-red-500 font-bold">שגיאה: מחוץ לתחום!</div>
+                    <div>6(${x}) - ${x}² - 5 = <span dir="ltr">${inner.toFixed(2)}</span></div>
+                    <div class="text-xs text-red-400 mt-1">אי אפשר להוציא שורש למספר שלילי</div>
+                `;
+            }
+        }
+
+        // --- Slide 3: One-to-One Logic ---
+        let selectedKey = null;
+        const connections = {}; // keyId -> roomId
+        const canvas = document.getElementById('connections-canvas');
+        const ctx = canvas.getContext('2d');
+        const keys = document.querySelectorAll('.key-btn');
+        const rooms = document.querySelectorAll('.room-btn');
+        const statusBox = document.getElementById('injection-status');
+
+        function resizeCanvas() {
+            if(!canvas.parentElement) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            drawConnections();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setInterval(resizeCanvas, 1000); 
+
+        keys.forEach(k => {
+            k.addEventListener('click', () => {
+                delete connections[k.dataset.id];
+                selectedKey = k.dataset.id;
+                keys.forEach(b => b.classList.remove('ring-2', 'ring-yellow-500'));
+                k.classList.add('ring-2', 'ring-yellow-500');
+                drawConnections();
+                checkStatus();
+            });
+        });
+
+        rooms.forEach(r => {
+            r.addEventListener('click', () => {
+                if (selectedKey) {
+                    connections[selectedKey] = r.dataset.id;
+                    selectedKey = null;
+                    keys.forEach(b => b.classList.remove('ring-2', 'ring-yellow-500'));
+                    drawConnections();
+                    checkStatus();
+                }
+            });
+        });
+
+        function resetConnections() {
+            for (let k in connections) delete connections[k];
+            selectedKey = null;
+            keys.forEach(b => b.classList.remove('ring-2', 'ring-yellow-500'));
+            drawConnections();
+            checkStatus();
+        }
+
+        function drawConnections() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+
+            for (let [kId, rId] of Object.entries(connections)) {
+                const kElem = document.querySelector(`button[data-id="${kId}"]`);
+                const rElem = document.querySelector(`button[data-id="${rId}"]`);
+                
+                if (kElem && rElem) {
+                    const kX = (kElem.offsetLeft + kElem.offsetWidth); 
+                    const kY = (kElem.offsetTop + kElem.offsetHeight / 2);
+                    const rX = rElem.offsetLeft;
+                    const rY = (rElem.offsetTop + rElem.offsetHeight / 2);
+
+                    ctx.beginPath();
+                    ctx.moveTo(kX, kY);
+                    
+                    const cp1x = kX + (rX - kX) / 2;
+                    const cp1y = kY;
+                    const cp2x = kX + (rX - kX) / 2;
+                    const cp2y = rY;
+                    
+                    ctx.strokeStyle = '#38bdf8'; 
+                    const roomUsage = Object.values(connections).filter(val => val === rId).length;
+                    if (roomUsage > 1) ctx.strokeStyle = '#f43f5e'; 
+
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, rX, rY);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function checkStatus() {
+            const values = Object.values(connections);
+            const keysCount = Object.keys(connections).length;
+            
+            if (keysCount === 0) {
+                statusBox.innerText = "התחל לחבר מפתחות לחדרים...";
+                statusBox.className = "mt-6 p-3 text-center rounded font-bold bg-slate-800 text-slate-400 min-h-[50px] flex items-center justify-center border border-slate-700";
+                return;
+            }
+
+            const uniqueValues = new Set(values);
+            const isInjective = uniqueValues.size === values.length;
+
+            if (isInjective) {
+                statusBox.innerHTML = `<span class="text-green-400 flex items-center gap-2"><span class="material-symbols-outlined">check_circle</span> פונקציה חח"ע תקינה!</span>`;
+                statusBox.className = "mt-6 p-3 text-center rounded font-bold bg-green-900/30 text-green-400 border border-green-500/50 min-h-[50px] flex items-center justify-center";
+            } else {
+                statusBox.innerHTML = `<span class="text-red-400 flex items-center gap-2"><span class="material-symbols-outlined">warning</span> שגיאה: לא חח"ע (התנגשות חדרים)</span>`;
+                statusBox.className = "mt-6 p-3 text-center rounded font-bold bg-red-900/30 text-red-400 border border-red-500/50 min-h-[50px] flex items-center justify-center";
+            }
+        }
+
+        // --- Slide 4: Monotonicity Logic ---
+        const sectionContainer = document.getElementById('section-container');
+        const tracerDot = document.getElementById('tracer-dot');
+        const monoTooltip = document.getElementById('mono-tooltip');
+        const monoText = document.getElementById('mono-text');
+
+        sectionContainer.addEventListener('mousemove', (e) => {
+            const rect = sectionContainer.getBoundingClientRect();
+            const scaleX = 400 / rect.width;
+            let svgX = (e.clientX - rect.left) * scaleX;
+            if (svgX < 0) svgX = 0; if (svgX > 400) svgX = 400;
+
+            let svgY = 0;
+            let type = "";
+            let color = "";
+
+            if (svgX <= 100) {
+                svgY = -0.8 * svgX + 180;
+                type = "עליה ממש (רמפה)";
+                color = "text-green-400";
+            } else if (svgX <= 150) {
+                svgY = 100;
+                type = "קבוע (מישור)";
+                color = "text-yellow-400";
+            } else if (svgX <= 200) {
+                svgY = -1 * svgX + 250;
+                type = "עליה ממש (מדרגות)";
+                color = "text-green-400";
+            } else if (svgX <= 300) {
+                svgY = 0.7 * svgX - 90;
+                type = "ירידה ממש (גג)";
+                color = "text-red-400";
+            } else {
+                svgY = 120;
+                type = "קבוע (מרפסת)";
+                color = "text-yellow-400";
+            }
+
+            tracerDot.style.display = 'block';
+            tracerDot.setAttribute('cx', svgX);
+            tracerDot.setAttribute('cy', svgY);
+
+            monoTooltip.style.display = 'block';
+            monoTooltip.style.left = (e.clientX - rect.left) + 'px';
+            monoTooltip.style.top = ((svgY / 200 * rect.height) - 10) + 'px';
+            
+            monoText.innerHTML = `<span class="${color} font-bold">${type}</span>`;
+        });
+
+        sectionContainer.addEventListener('mouseleave', () => {
+            tracerDot.style.display = 'none';
+            monoTooltip.style.display = 'none';
+        });
+
+        // --- Slide 5: Parabola Canvas ---
+        const pCanvas = document.getElementById('parabola-canvas');
+        const pCtx = pCanvas.getContext('2d');
+        const paramH = document.getElementById('param-h');
+        const paramW = document.getElementById('param-w');
+        const valH = document.getElementById('val-h');
+        const valW = document.getElementById('val-w');
+        const calcA = document.getElementById('calc-a');
+        const calcH = document.getElementById('calc-h');
+
+        function drawParabola() {
+            if(!pCanvas.parentElement) return;
+            const rect = pCanvas.parentElement.getBoundingClientRect();
+            pCanvas.width = rect.width;
+            pCanvas.height = rect.height;
+
+            const h_m = parseFloat(paramH.value);
+            const w_m = parseFloat(paramW.value);
+            valH.innerText = h_m.toFixed(1);
+            valW.innerText = w_m.toFixed(1);
+
+            const scale = pCanvas.width / 12; 
+            const groundY = pCanvas.height - 20;
+            const centerX = pCanvas.width / 2;
+
+            const a = (4 * h_m) / (w_m * w_m);
+            calcA.innerText = a.toFixed(2);
+            calcH.innerText = h_m.toFixed(1);
+
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+
+            // Grid
+            pCtx.strokeStyle = 'rgba(255,255,255,0.1)';
+            pCtx.lineWidth = 1;
+            for(let i=0; i<pCanvas.width; i+=scale) { pCtx.beginPath(); pCtx.moveTo(i,0); pCtx.lineTo(i,pCanvas.height); pCtx.stroke(); }
+            for(let i=groundY; i>0; i-=scale) { pCtx.beginPath(); pCtx.moveTo(0,i); pCtx.lineTo(pCanvas.width,i); pCtx.stroke(); }
+
+            // Ground
+            pCtx.strokeStyle = '#94a3b8';
+            pCtx.lineWidth = 2;
+            pCtx.beginPath(); pCtx.moveTo(0, groundY); pCtx.lineTo(pCanvas.width, groundY); pCtx.stroke();
+
+            // Parabola
+            pCtx.strokeStyle = '#facc15';
+            pCtx.lineWidth = 4;
+            pCtx.beginPath();
+            
+            const step = 0.1;
+            const startX_m = -(w_m/2);
+            const endX_m = (w_m/2);
+            
+            for(let x = startX_m; x <= endX_m; x += step) {
+                const y = -a * (x*x) + h_m;
+                const cX = centerX + (x * scale);
+                const cY = groundY - (y * scale);
+                if (x === startX_m) pCtx.moveTo(cX, cY);
+                else pCtx.lineTo(cX, cY);
+            }
+            pCtx.stroke();
+
+            // Pillars
+            pCtx.fillStyle = '#334155';
+            const leftX = centerX + startX_m*scale;
+            const rightX = centerX + endX_m*scale;
+            pCtx.fillRect(leftX-5, groundY, 10, 10);
+            pCtx.fillRect(rightX-5, groundY, 10, 10);
+
+            // Text
+            pCtx.fillStyle = '#fff';
+            pCtx.font = '12px sans-serif';
+            pCtx.textAlign = 'center';
+            pCtx.fillText(`${w_m}m`, centerX, groundY + 15);
+            pCtx.fillText(`${h_m}m`, centerX + (w_m/2 * scale) + 15, groundY - (h_m/2 * scale));
+        }
+
+        if(paramH && paramW) {
+            paramH.addEventListener('input', drawParabola);
+            paramW.addEventListener('input', drawParabola);
+        }
+
+
+        // --- Slide 6: Quiz Logic ---
+        const quizCanvas = document.getElementById('quiz-canvas');
+        const qCtx = quizCanvas.getContext('2d');
+        const quizTitle = document.getElementById('quiz-title');
+        const qFeedback = document.getElementById('quiz-feedback');
+        
+        let currentQuizIdx = 0;
+        
+        const quizData = [
+            {
+                id: 0,
+                latex: 'f(x) = x + 1',
+                graphFn: (x) => x + 1,
+                isOneToOne: true,
+                isIncreasing: true,
+                isDecreasing: false,
+                isEven: false,
+                desc: 'קו ישר בשיפוע חיובי.'
+            },
+            {
+                id: 1,
+                latex: 'f(x) = x²',
+                graphFn: (x) => x * x,
+                isOneToOne: false,
+                isIncreasing: false,
+                isDecreasing: false,
+                isEven: true,
+                desc: 'פרבולה קלאסית.'
+            },
+            {
+                id: 2,
+                latex: 'f(x) = x³',
+                graphFn: (x) => x * x * x,
+                isOneToOne: true,
+                isIncreasing: true,
+                isDecreasing: false,
+                isEven: false,
+                desc: 'פונקציית חזקה אי-זוגית.'
+            },
+            {
+                id: 3,
+                latex: 'f(x) = |x|',
+                graphFn: (x) => Math.abs(x),
+                isOneToOne: false,
+                isIncreasing: false,
+                isDecreasing: false,
+                isEven: true,
+                desc: 'פונקציית ערך מוחלט (צורת V).'
+            }
+        ];
+
+        function initQuiz() {
+            selectQuizFunc(0);
+        }
+
+        function selectQuizFunc(idx) {
+            currentQuizIdx = idx;
+            const data = quizData[idx];
+
+            // UI Updates
+            document.querySelectorAll('.quiz-func-btn').forEach(b => {
+                if(parseInt(b.dataset.idx) === idx) b.classList.add('bg-slate-600', 'border-arch-line');
+                else b.classList.remove('bg-slate-600', 'border-arch-line');
+            });
+            
+            quizTitle.innerText = `עבור הפונקציה ${data.latex}`;
+            
+            // Reset Form
+            document.getElementById('q-one-to-one').checked = false;
+            document.getElementById('q-increasing').checked = false;
+            document.getElementById('q-decreasing').checked = false;
+            document.getElementById('q-even').checked = false;
+            qFeedback.classList.add('hidden');
+
+            drawQuizGraph(data.graphFn);
+        }
+
+        function drawQuizGraph(fn) {
+            if(!quizCanvas.parentElement) return;
+            const rect = quizCanvas.parentElement.getBoundingClientRect();
+            quizCanvas.width = rect.width;
+            quizCanvas.height = rect.height;
+            
+            const w = quizCanvas.width;
+            const h = quizCanvas.height;
+            const scale = w / 10; // -5 to 5 domain roughly
+            const cx = w / 2;
+            const cy = h / 2;
+
+            qCtx.clearRect(0,0,w,h);
+            
+            // Grid
+            qCtx.strokeStyle = '#334155';
+            qCtx.lineWidth = 1;
+            qCtx.beginPath(); qCtx.moveTo(0, cy); qCtx.lineTo(w, cy); qCtx.stroke(); // X Axis
+            qCtx.beginPath(); qCtx.moveTo(cx, 0); qCtx.lineTo(cx, h); qCtx.stroke(); // Y Axis
+
+            // Graph
+            qCtx.strokeStyle = '#facc15';
+            qCtx.lineWidth = 3;
+            qCtx.beginPath();
+            
+            for(let px = 0; px <= w; px++) {
+                // px to math x
+                const x = (px - cx) / scale;
+                const y = fn(x);
+                // math y to py
+                const py = cy - (y * scale);
+                
+                if (px === 0) qCtx.moveTo(px, py);
+                else qCtx.lineTo(px, py);
+            }
+            qCtx.stroke();
+        }
+
+        function checkQuizAnswer() {
+            const data = quizData[currentQuizIdx];
+            const userOneToOne = document.getElementById('q-one-to-one').checked;
+            const userInc = document.getElementById('q-increasing').checked;
+            const userDec = document.getElementById('q-decreasing').checked;
+            const userEven = document.getElementById('q-even').checked;
+
+            let correct = true;
+            let mistakes = [];
+
+            if (userOneToOne !== data.isOneToOne) {
+                correct = false;
+                mistakes.push(data.isOneToOne ? "הפונקציה היא חח\"ע" : "הפונקציה אינה חח\"ע");
+            }
+            if (userInc !== data.isIncreasing) {
+                correct = false;
+                mistakes.push(data.isIncreasing ? "הפונקציה עולה ממש" : "הפונקציה אינה עולה ממש לכל x");
+            }
+            if (userDec !== data.isDecreasing) {
+                correct = false;
+                mistakes.push("שגיאה במונוטוניות (ירידה)");
+            }
+            if (userEven !== data.isEven) {
+                correct = false;
+                mistakes.push(data.isEven ? "הפונקציה זוגית" : "הפונקציה אינה זוגית");
+            }
+
+            qFeedback.classList.remove('hidden', 'bg-red-900/30', 'border-red-500', 'text-red-400', 'bg-green-900/30', 'border-green-500', 'text-green-400');
+            
+            if (correct) {
+                qFeedback.classList.add('bg-green-900/30', 'border-green-500', 'text-green-400');
+                qFeedback.innerHTML = `<strong>כל הכבוד!</strong> תשובה מדויקת.<br>${data.desc}`;
+            } else {
+                qFeedback.classList.add('bg-red-900/30', 'border-red-500', 'text-red-400');
+                qFeedback.innerHTML = `<strong>לא מדויק.</strong> נסה שוב.<br>שים לב: ${mistakes[0]}`;
+            }
+        }
+
+        // Initial setup
+        updateSlide();
+        setTimeout(() => {
+            if(currentSlide === 1) initDomainViz();
+            if(currentSlide === 2) resizeCanvas(); 
+            // etc
+        }, 100);
+
+    </script>
+</body>
+</html>
